@@ -116,5 +116,42 @@ def test_two_gates():
     compiled_op = qsharp.compile(qsharp_code)
     compiled_op()
 
+def test_allocate_qubit(allocate_qubit):
+    my_qbob = qbob.OperationBuilder("AllocateQubit")
+    with my_qbob.allocate_qubits("q", 1) as q:
+        my_qbob += intrinsics.Z(q)
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(allocate_qubit)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()
+
+def test_allocate_two_qubits(allocate_two_qubits):
+    my_qbob = qbob.OperationBuilder("AllocateTwoQubits")
+    with my_qbob.allocate_qubits("q", 2) as q:
+        my_qbob += intrinsics.Z(q[0])
+        my_qbob += intrinsics.Z(q[1])
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(allocate_two_qubits)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()
 
 
+def test_measure_entangled_state(measure_entangled_state):
+    my_qbob = qbob.OperationBuilder("MeasureEntangledState")
+    with my_qbob.allocate_qubits("qubits", 2) as q:
+        my_qbob += intrinsics.H(q[0])
+        my_qbob += intrinsics.CNOT(q[0], q[1])
+        my_qbob.returns([intrinsics.M(q[0]), intrinsics.M(q[1])])
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(measure_entangled_state)
+            == without_whitespace(qsharp_code))

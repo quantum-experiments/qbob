@@ -24,8 +24,7 @@ def hello_world_qubit():
 
 @pytest.fixture()
 def measure_entangled_state():
-    return """open Microsoft.Quantum.Intrinsic;
-operation MeasureEntangledState() : Result[] {
+    return """operation MeasureEntangledState() : Result[] {
     using (qubits = Qubit[2]) {
         H(qubits[0]);
         CNOT(qubits[0], qubits[1]);
@@ -114,5 +113,22 @@ def teleport():
         if (Measure([PauliX], [auxiliary]) == One) {
             X(target);
         }
+    }
+}"""
+
+@pytest.fixture()
+def allocate_qubit():
+    return """operation AllocateQubit () : Unit {
+    using (q = Qubit()) {
+        Z(q);
+    }
+}"""
+
+@pytest.fixture()
+def allocate_two_qubits():
+    return """operation AllocateTwoQubits () : Unit {
+    using (q = Qubit[2]) {
+        Z(q[0]);
+        Z(q[1]);
     }
 }"""
