@@ -60,9 +60,7 @@ def prepare_entangled_state():
 
 
 @pytest.fixture()
-def measure_entangled_state_using_prepare(prepare_entangled_state):
-    import qsharp
-    qsharp.compile(prepare_entangled_state)
+def measure_entangled_state_using_prepare():
     return """operation MeasureEntangledState() : Result[] {
     using (qubits = Qubit[2]) {
         PrepareEntangledState(qubits);
@@ -85,15 +83,15 @@ def h_x_h():
 
 
 @pytest.fixture()
-def is_zero():
-    return """operation IsZero(q: Qubit) : Bool {
+def is_plus():
+    return """operation IsPlus(q: Qubit) : Bool {
     return (Measure([PauliX], [q]) == Zero);
 }"""
 
 
 @pytest.fixture()
-def is_one():
-    return """operation IsOne(q: Qubit) : Bool {
+def is_minus():
+    return """operation IsMinus(q: Qubit) : Bool {
     return (Measure([PauliX], [q]) == One);
 }"""
 
@@ -107,11 +105,11 @@ def teleport():
         CNOT(msg, auxiliary);
         H(msg);
 
-        if (Measure([PauliX], [msg]) == One) {
+        if (Measure([PauliZ], [msg]) == One) {
             Z(target);
         }
 
-        if (Measure([PauliX], [auxiliary]) == One) {
+        if (Measure([PauliZ], [auxiliary]) == One) {
             X(target);
         }
     }

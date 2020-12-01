@@ -14,7 +14,9 @@ def operation_unit(request):
 
 
 @pytest.fixture(params=["measure_entangled_state", "measure_entangled_state_using_prepare"])
-def operation_measure(request):
+def operation_measure(request, prepare_entangled_state):
+    if request.param == "measure_entangled_state_using_prepare":
+        qsharp.compile(prepare_entangled_state)
     return request.getfixturevalue(request.param)
 
 
@@ -41,3 +43,47 @@ def test_hello_worlds(hello_world_qubit):
     }
 }""")
     entrypoint.simulate()
+
+
+def test_is_plus(is_plus):
+    qsharp.compile(is_plus)
+    entrypoint = qsharp.compile("""operation Program () : Bool {
+    using (qubit = Qubit()) {
+        Reset(qubit);
+        H(qubit);
+        return IsPlus(qubit);
+    }
+}""")
+    assert entrypoint.simulate()
+
+
+def test_is_minus(is_minus):
+    qsharp.compile(is_minus)
+    entrypoint = qsharp.compile("""operation Program () : Bool {
+    using (qubit = Qubit()) {
+        Reset(qubit);
+        X(qubit);
+        H(qubit);
+        return IsMinus(qubit);
+    }
+}""")
+    assert entrypoint.simulate()
+
+
+def test_teleport(is_minus, teleport):
+    qsharp.compile(is_minus)
+    qsharp.compile(teleport)
+    entrypoint = qsharp.compile("""operation Program (message : Bool) : Bool {
+    using ((msg, target) = (Qubit(), Qubit())) {
+        Reset(msg);
+        Reset(target);
+        if (message == true) {
+            X(msg);
+        }
+        H(msg);
+        Teleport(msg, target);
+        return IsMinus(target);
+    }
+}""")
+    assert entrypoint.simulate(message=True)
+    assert not entrypoint.simulate(message=False)
