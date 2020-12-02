@@ -1,4 +1,9 @@
 import pytest
+import os
+
+@pytest.fixture()
+def test_folder():
+    return os.path.split(os.path.abspath(__file__))[0]
 
 @pytest.fixture()
 def hello_world():

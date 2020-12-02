@@ -1,1 +1,0 @@
-namespace Microsoft.Quantum.Foo { operation Test () : Unit { let test = "Hello world!"; return test; } }

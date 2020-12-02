@@ -11,7 +11,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    "qsharp"
+    "qsharp",
+    "antlr4-python3-runtime"
 ]
 
 setup_requirements = ['pytest-runner', ]
