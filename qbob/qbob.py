@@ -42,26 +42,22 @@ class OperationBuilder:
         return Token(parameter_name, to_qsharp_type(parameter_type))
 
     def add_local(self, name: str, value: object, immutable: bool = False) -> Token:
-        if isinstance(value, Token):
-            value = value.name
         self.statements.append(f"{'let' if immutable else 'mutable'} {name} = {value};")
         return Token(name, to_qsharp_type(type(value)))
 
     def set_local(self, local: Token, value: object) -> None:
-        if isinstance(value, Token):
-            value = value.name
-        self.statements.append(f"set {local.name} = {value};")
+        self.statements.append(f"set {local} = {value};")
 
     def returns(self, *return_tokens) -> None:
-        def to_qsharp_return_value(obj):
-            if isinstance(obj, list):
-                return "[" + ",".join([to_qsharp_return_value(o) for o in obj]) + "]"
-            return obj.name
+        def to_qsharp_return_value(return_token: Union[List, Token]) -> str:
+            if isinstance(return_token, list):
+                return "[" + ",".join([to_qsharp_return_value(token) for token in return_token]) + "]"
+            return return_token.name
         
-        def to_qsharp_return_type(obj):
-            if isinstance(obj, list):
-                return f"{to_qsharp_return_type(obj[0])}[]"
-            return obj.type
+        def to_qsharp_return_type(return_token: Union[List, Token]) -> str:
+            if isinstance(return_token, list):
+                return f"{to_qsharp_return_type(return_token[0])}[]"
+            return return_token.type
 
         ret_val = ','.join([to_qsharp_return_value(r) for r in return_tokens])
         self.statements.append(f"return {ret_val};")
@@ -109,7 +105,7 @@ class OperationBuilder:
             yield
         finally:
             self.statements.append("}")
-            self.statements.append(f"until ({condition.name})")
+            self.statements.append(f"until ({condition})")
             if fixup:
                 self.statements.append("fixup {")
                 for expression in fixup:
@@ -117,5 +113,5 @@ class OperationBuilder:
                 self.statements.append("}")
 
     def __iadd__(self, expression: Token) -> 'OperationBuilder':
-        self.statements.append(f"{expression.name};")
+        self.statements.append(f"{expression};")
         return self
