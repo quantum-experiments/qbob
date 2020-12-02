@@ -119,6 +119,7 @@ def teleport():
     }
 }"""
 
+
 @pytest.fixture()
 def allocate_qubit():
     return """operation AllocateQubit () : Unit {
@@ -127,11 +128,22 @@ def allocate_qubit():
     }
 }"""
 
+
 @pytest.fixture()
 def allocate_two_qubits():
     return """operation AllocateTwoQubits () : Unit {
     using (q = Qubit[2]) {
         Z(q[0]);
         Z(q[1]);
+    }
+}"""
+
+
+@pytest.fixture()
+def with_entrypoint():
+    return """@EntryPoint()
+operation RunProgram (nQubits : Int) : Unit {​
+    using (register = Qubit[nQubits]) {
+        H(register[0]);
     }
 }"""
