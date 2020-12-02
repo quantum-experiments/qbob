@@ -180,3 +180,31 @@ def test_measure_until_one(measure_until_one):
     print(qsharp_code)
     assert (without_whitespace(measure_until_one)
             == without_whitespace(qsharp_code))
+
+def test_nested_operations(prepare_entangled_state, measure_entangled_state_using_prepare):
+    prepare_qbob = qbob.OperationBuilder("PrepareEntangledState")
+    prepare_qbob.is_adj = True
+    qubits = prepare_qbob.input("qubits", List[Qubit])
+    prepare_qbob += intrinsics.H(qubits[0])
+    prepare_qbob += intrinsics.CNOT(qubits[0], qubits[1])
+
+    qsharp_code = prepare_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(prepare_entangled_state)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()
+
+    measure_qbob = qbob.OperationBuilder("MeasureEntangledState")
+    with measure_qbob.allocate_qubits("qubits", 2) as q:
+        measure_qbob += prepare_qbob(q)
+        measure_qbob.returns([intrinsics.M(q[0]), intrinsics.M(q[1])])
+
+    qsharp_code = measure_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(measure_entangled_state_using_prepare)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()

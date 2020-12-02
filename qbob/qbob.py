@@ -33,6 +33,11 @@ class OperationBuilder:
             + "}"
         )
 
+    def __call__(self, *args) -> Token:
+        assert len(args) == len(self.input_parameters)
+        args_as_str = [str(arg) for arg in args]
+        return Token(f"{self.operation_name}({','.join(args_as_str)})", self.return_type)
+
     def input(self, parameter_name: str, parameter_type: Union[type, _GenericAlias]) -> Token:
         assert isinstance(parameter_name, str)
         assert (isinstance(parameter_type, type)
