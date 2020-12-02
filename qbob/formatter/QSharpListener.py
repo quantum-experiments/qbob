@@ -5,6 +5,7 @@ from qbob.formatter.QSharpLexer import QSharpLexer
 from qbob.formatter.QSharpParser import QSharpParser, ParserRuleContext
 
 TAB = "    "
+NEWLINE = "\n"
 
 def get_level(node, level = -1):
     if node is None:
@@ -19,6 +20,7 @@ class QSharpListener(ParseTreeListener):
         self.value = ""
         self.newline = False
         self.n = 0
+        self.in_namespace = False
         self.debug = debug
         super().__init__(*args, **kwargs)
 
@@ -43,50 +45,62 @@ class QSharpListener(ParseTreeListener):
         last_node = node_index == len(tree_nodes) - 1
 
         # Nodes with newlines
-        if first_node:
-            if in_context(QSharpParser.CallableDeclarationContext):
+        if first_node and not last_node:
+            if in_context(QSharpParser.CallableDeclarationContext) and self.in_namespace:
+                # define an operation or function within a namespace
                 self.indentation += 1
-                indent = TAB * self.indentation
-                pre += "\n" + indent
+                pre += NEWLINE
         
             elif in_context(QSharpParser.ScopeContext):
+                # start a scope {
                 pre += " "
                 self.indentation += 1
-                indent = TAB * self.indentation
-                post += "\n" + indent
+                post += NEWLINE
 
             elif in_context(QSharpParser.ReturnStatementContext):
-                indent = TAB * self.indentation
-                pre += "\n" + indent
+                # return statement
+                pre += NEWLINE
 
         elif last_node:
             if in_context(QSharpParser.ScopeContext) or in_context(QSharpParser.NamespaceContext):
+                # finish a scope or namespace }
                 self.indentation -= 1
-                indent = TAB * self.indentation
-                pre += "\n" + indent
+
+            elif in_context(QSharpParser.ExpressionStatementContext):
+                # end an expression ;
+                post += NEWLINE
 
         # Nodes with spaces
         if in_context(QSharpParser.NamespaceContext):
+            # space after the namespace token
             if first_node:
                 post += " "
-            if node_index == len(tree_nodes) - 2:
+            if node.symbol.text == ":":
+                # space before the semicolon :
                 pre += " "
 
         elif in_context(QSharpParser.CallableDeclarationContext):
+            # space after "operation" or "function" tokens
             if first_node:
+                post += " "
+            if node.symbol.text == ":":
+                post += " "
+
+        elif in_context(QSharpParser.NamedItemContext):
+            # Space around semicolon in func or op signature
+            if node.symbol.text == ":":
+                pre += " "
                 post += " "
 
         elif in_context(QSharpParser.ParameterTupleContext):
-            if first_node:
+            # Before and after parens
+            if first_node: #(
                 pre += " "
-            if last_node:
+            if last_node: #)
                 post += " "
 
-        elif in_context(QSharpParser.Type_ruleContext):
-            if first_node:
-                pre += " "
-
         elif in_context(QSharpParser.LetStatementContext):
+            # Spaces in let statement
             if first_node:
                 post += " "
             if node.symbol.text == "=":
@@ -94,17 +108,24 @@ class QSharpListener(ParseTreeListener):
                 post += " "
 
         elif in_context(QSharpParser.ReturnStatementContext):
+            # Space after return token
             if first_node:
                 post += " "
 
-        self.value += f"{pre}{node.symbol.text}{post}"
+        indent = TAB * self.indentation if self.value.endswith(NEWLINE) else ""
+        self.value += f"{indent}{pre}{node.symbol.text}{post}"
 
     def enterEveryRule(self, ctx: ParserRuleContext):
+        if isinstance(ctx, QSharpParser.NamespaceContext):
+            self.in_namespace = True
         if self.debug:
             print(f"{self.n}:{type(ctx)}")
+            self.value += f"{self.n}["
             self.n += 1
 
     def exitEveryRule(self, ctx: ParserRuleContext):
+        if isinstance(ctx, QSharpParser.NamespaceContext):
+            self.in_namespace = False
         if self.debug:
             self.value += "]"
 
@@ -114,7 +135,7 @@ if __name__ == '__main__':
     lexer = QSharpLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = QSharpParser(stream)
-    tree = parser.namespace()
+    tree = parser.target()
     printer = QSharpListener()
     walker = ParseTreeWalker()
     walker.walk(printer, tree)

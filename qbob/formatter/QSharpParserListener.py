@@ -17,6 +17,15 @@ class QSharpParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QSharpParser#target.
+    def enterTarget(self, ctx:QSharpParser.TargetContext):
+        pass
+
+    # Exit a parse tree produced by QSharpParser#target.
+    def exitTarget(self, ctx:QSharpParser.TargetContext):
+        pass
+
+
     # Enter a parse tree produced by QSharpParser#namespace.
     def enterNamespace(self, ctx:QSharpParser.NamespaceContext):
         pass
