@@ -33,7 +33,7 @@ class OperationBuilder:
             + "}"
         )
 
-    def input(self, parameter_name: str, parameter_type: Union[type, _GenericAlias]):
+    def input(self, parameter_name: str, parameter_type: Union[type, _GenericAlias]) -> Token:
         assert isinstance(parameter_name, str)
         assert (isinstance(parameter_type, type)
                 or isinstance(parameter_type, _GenericAlias))
@@ -41,7 +41,18 @@ class OperationBuilder:
 
         return Token(parameter_name, to_qsharp_type(parameter_type))
 
-    def returns(self, *return_tokens):
+    def add_local(self, name: str, value: object, immutable: bool = False) -> Token:
+        if isinstance(value, Token):
+            value = value.name
+        self.statements.append(f"{'let' if immutable else 'mutable'} {name} = {value};")
+        return Token(name, to_qsharp_type(type(value)))
+
+    def set_local(self, local: Token, value: object) -> None:
+        if isinstance(value, Token):
+            value = value.name
+        self.statements.append(f"set {local.name} = {value};")
+
+    def returns(self, *return_tokens) -> None:
         def to_qsharp_return_value(obj):
             if isinstance(obj, list):
                 return "[" + ",".join([to_qsharp_return_value(o) for o in obj]) + "]"
@@ -72,6 +83,38 @@ class OperationBuilder:
             yield Token(register_name, type_name)
         finally:
             self.statements.append("}")
+
+    @contextmanager
+    def within(self, expressions: Union[Token, List[Token]]):
+        if not isinstance(expressions, list):
+            expressions = [expressions]
+        
+        self.statements.append("within {")
+        for expression in expressions:
+            self += expression
+        self.statements.append("} apply {")
+        try:
+            yield
+        finally:
+            self.statements.append("}")
+    
+    @contextmanager
+    def repeat_until(self, condition: Token, fixup: Union[Token, List[Token]] = []):
+        assert condition.type == to_qsharp_type(bool)
+        if not isinstance(fixup, list):
+            fixup = [fixup]
+        
+        self.statements.append("repeat {")
+        try:
+            yield
+        finally:
+            self.statements.append("}")
+            self.statements.append(f"until ({condition.name})")
+            if fixup:
+                self.statements.append("fixup {")
+                for expression in fixup:
+                    self += expression
+                self.statements.append("}")
 
     def __iadd__(self, expression: Token) -> 'OperationBuilder':
         self.statements.append(f"{expression.name};")

@@ -155,3 +155,28 @@ def test_measure_entangled_state(measure_entangled_state):
     print(qsharp_code)
     assert (without_whitespace(measure_entangled_state)
             == without_whitespace(qsharp_code))
+
+def test_within_apply(h_x_h):
+    my_qbob = qbob.OperationBuilder("HXH")
+    with my_qbob.allocate_qubits("q", 1) as q:
+        with my_qbob.within(intrinsics.H(q)):
+            my_qbob += intrinsics.X(q)
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(h_x_h)
+            == without_whitespace(qsharp_code))
+
+def test_measure_until_one(measure_until_one):
+    my_qbob = qbob.OperationBuilder("MeasureUntilOne")
+    with my_qbob.allocate_qubits("q", 1) as q:
+        result = my_qbob.add_local("result", Zero)
+        with my_qbob.repeat_until(result == One,
+                fixup = intrinsics.Reset(q)):
+            my_qbob += intrinsics.H(q)
+            my_qbob.set_local(result, intrinsics.M(q))
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(measure_until_one)
+            == without_whitespace(qsharp_code))

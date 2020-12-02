@@ -7,6 +7,15 @@ def H(qubit: Token) -> Token:
 
 def M(qubit: Token) -> Token:
     return Token(f"M({qubit.name})", "Result")
+
+def Reset(qubit: Token) -> Token:
+    return Token(f"Reset({qubit.name})", "Unit")
+    
+def X(qubit: Token) -> Token:
+    return Token(f"X({qubit.name})", "Unit")
+    
+def Y(qubit: Token) -> Token:
+    return Token(f"Y({qubit.name})", "Unit")
     
 def Z(qubit: Token) -> Token:
     return Token(f"Z({qubit.name})", "Unit")

@@ -8,3 +8,6 @@ class Token:
     def __getitem__(self, key: int) -> 'Token':
         assert self.type.endswith("[]")
         return Token(f"{self.name}[{key}]", self.type[:-2])
+
+    def __eq__(self, value: object) -> 'Token':
+        return Token(f"{self.name} == {value}", "Bool")
