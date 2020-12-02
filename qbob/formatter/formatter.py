@@ -25,11 +25,16 @@ class Formatter(abc.ABC):
     def listener_cls(self):
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def parser_entry_fn(self):
+        raise NotImplementedError
+
     def _format_input_stream(self, input_stream: Union[InputStream, FileStream]):
         lexer = self.lexer_cls(input_stream)
         stream = CommonTokenStream(lexer)
         parser = self.parser_cls(stream)
-        tree = parser.namespace()
+        tree = getattr(parser, self.parser_entry_fn)()
         listener = self.listener_cls()
         walker = ParseTreeWalker()
         walker.walk(listener, tree)
@@ -48,3 +53,4 @@ class QSharpFormatter(Formatter):
     lexer_cls = QSharpLexer
     parser_cls = QSharpParser
     listener_cls = QSharpListener
+    parser_entry_fn = "target"

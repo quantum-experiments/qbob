@@ -17,12 +17,16 @@ class QSharpListener(ParseTreeListener):
     """
     def __init__(self, debug: bool = False, *args, **kwargs):
         self.indentation = 0
-        self.value = ""
+        self._value = ""
         self.newline = False
         self.n = 0
         self.in_namespace = False
         self.debug = debug
         super().__init__(*args, **kwargs)
+
+    @property
+    def value(self):
+        return self._value.rstrip(NEWLINE)
 
     def visitTerminal(self, node):
         """Visit terminal node and add formatted output to the listener's value
@@ -62,8 +66,13 @@ class QSharpListener(ParseTreeListener):
                 pre += NEWLINE
 
         elif last_node:
-            if in_context(QSharpParser.ScopeContext) or in_context(QSharpParser.NamespaceContext):
-                # finish a scope or namespace }
+            if in_context(QSharpParser.ScopeContext):
+                # finish a scope }
+                self.indentation -= 1
+                post += NEWLINE
+            
+            elif in_context(QSharpParser.NamespaceContext):
+                # finish a namespace }
                 self.indentation -= 1
 
             elif in_context(QSharpParser.ExpressionStatementContext):
@@ -112,22 +121,36 @@ class QSharpListener(ParseTreeListener):
             if first_node:
                 post += " "
 
-        indent = TAB * self.indentation if self.value.endswith(NEWLINE) else ""
-        self.value += f"{indent}{pre}{node.symbol.text}{post}"
+        elif in_context(QSharpParser.UsingStatementContext):
+            # Space before paren (
+            if first_node:
+                post += " "
+            
+            if node.symbol.text == "=":
+                pre += " "
+                post += " "
+
+        elif in_context(QSharpParser.ApplyStatementContext):
+            if first_node:
+                pre += " "
+                self._value = self._value.rstrip("\n")
+
+        indent = TAB * self.indentation if self._value.endswith(NEWLINE) else ""
+        self._value += f"{indent}{pre}{node.symbol.text}{post}"
 
     def enterEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = True
         if self.debug:
             print(f"{self.n}:{type(ctx)}")
-            self.value += f"{self.n}["
+            self._value += f"{self.n}["
             self.n += 1
 
     def exitEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = False
         if self.debug:
-            self.value += "]"
+            self._value += "]"
 
 
 if __name__ == '__main__':
