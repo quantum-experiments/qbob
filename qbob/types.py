@@ -2,7 +2,7 @@
 
 from typing import List, Union, _GenericAlias
 
-def _to_qsharp_type(python_type: type) -> str:
+def to_qsharp_type(python_type: type) -> str:
     if python_type == List[Qubit]:
         return "Qubit[]"
     elif python_type == int:
@@ -14,3 +14,9 @@ def _to_qsharp_type(python_type: type) -> str:
 
 class Qubit:
     pass
+
+class Result:
+    pass
+
+Zero = Result()
+One = Result()

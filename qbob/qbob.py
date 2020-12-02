@@ -3,17 +3,9 @@
 from contextlib import contextmanager
 from typing import List, Union, _GenericAlias
 
-from qbob.types import _to_qsharp_type
+from qbob.token import Token
+from qbob.types import to_qsharp_type
 
-
-class Token:
-    def __init__(self, name: str, type: str):
-        self.name = name
-        self.type = type
-
-    def __getitem__(self, key: int) -> 'Token':
-        assert self.type.endswith("[]")
-        return Token(f"{self.name}[{key}]", self.type[:-2])
 
 class OperationBuilder:
 
@@ -29,7 +21,7 @@ class OperationBuilder:
     def to_str(self) -> str:
         return (
             f"operation {self.operation_name}("
-            + ",".join([f"{n} : {_to_qsharp_type(t)}"
+            + ",".join([f"{n} : {to_qsharp_type(t)}"
                         for n,t in self.input_parameters.items()])
             + f") : {self.return_type} "
             + ("is Adj+Ctl" if self.is_adj and self.is_ctl
@@ -47,18 +39,17 @@ class OperationBuilder:
                 or isinstance(parameter_type, _GenericAlias))
         self.input_parameters[parameter_name] = parameter_type
 
-        return Token(parameter_name, _to_qsharp_type(parameter_type))
-
+        return Token(parameter_name, to_qsharp_type(parameter_type))
 
     def returns(self, *return_tokens):
         def to_qsharp_return_value(obj):
             if isinstance(obj, list):
-                return "[" + ",".join([o.name for o in obj]) + "]"
+                return "[" + ",".join([to_qsharp_return_value(o) for o in obj]) + "]"
             return obj.name
         
         def to_qsharp_return_type(obj):
             if isinstance(obj, list):
-                return f"{obj[0].type}[]"
+                return f"{to_qsharp_return_type(obj[0])}[]"
             return obj.type
 
         ret_val = ','.join([to_qsharp_return_value(r) for r in return_tokens])
@@ -82,6 +73,6 @@ class OperationBuilder:
         finally:
             self.statements.append("}")
 
-    def __iadd__(self, other) -> 'OperationBuilder':
-        self.statements.append(f"{other.name};")
+    def __iadd__(self, expression: Token) -> 'OperationBuilder':
+        self.statements.append(f"{expression.name};")
         return self
