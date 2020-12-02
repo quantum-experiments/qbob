@@ -5,6 +5,7 @@ import os
 def test_folder():
     return os.path.split(os.path.abspath(__file__))[0]
 
+
 @pytest.fixture()
 def hello_world():
     return """operation HelloWorld () : Unit {
@@ -29,7 +30,7 @@ def hello_world_qubit():
 
 @pytest.fixture()
 def measure_entangled_state():
-    return """operation MeasureEntangledState() : Result[] {
+    return """operation MeasureEntangledState () : Result[] {
     using (qubits = Qubit[2]) {
         H(qubits[0]);
         CNOT(qubits[0], qubits[1]);
@@ -40,9 +41,9 @@ def measure_entangled_state():
 
 @pytest.fixture()
 def measure_until_one():
-    return """operation MeasureUntilOne() : Unit {
+    return """operation MeasureUntilOne () : Unit {
     using (q = Qubit()) {
-        mutable result = Zero;
+        mutable result = Zero;
         repeat {
             H(q);
             set result = M(q);
@@ -57,7 +58,7 @@ def measure_until_one():
 
 @pytest.fixture()
 def prepare_entangled_state():
-    return """operation PrepareEntangledState(qubits : Qubit[]) : Unit is Adj {
+    return """operation PrepareEntangledState (qubits : Qubit[]) : Unit is Adj {
     H(qubits[0]);
     CNOT(qubits[0], qubits[1]);
 }"""
@@ -65,7 +66,7 @@ def prepare_entangled_state():
 
 @pytest.fixture()
 def measure_entangled_state_using_prepare():
-    return """operation MeasureEntangledState() : Result[] {
+    return """operation MeasureEntangledState () : Result[] {
     using (qubits = Qubit[2]) {
         PrepareEntangledState(qubits);
         return [M(qubits[0]), M(qubits[1])];
@@ -75,7 +76,7 @@ def measure_entangled_state_using_prepare():
 
 @pytest.fixture()
 def h_x_h():
-    return """operation HXH() : Unit {
+    return """operation HXH () : Unit {
     using (q = Qubit()) {
         within {
             H(q);
@@ -88,14 +89,14 @@ def h_x_h():
 
 @pytest.fixture()
 def is_plus():
-    return """operation IsPlus(q: Qubit) : Bool {
+    return """operation IsPlus (q : Qubit) : Bool {
     return (Measure([PauliX], [q]) == Zero);
 }"""
 
 
 @pytest.fixture()
 def is_minus():
-    return """operation IsMinus(q: Qubit) : Bool {
+    return """operation IsMinus (q : Qubit) : Bool {
     return (Measure([PauliX], [q]) == One);
 }"""
 
@@ -119,6 +120,7 @@ def teleport():
     }
 }"""
 
+
 @pytest.fixture()
 def allocate_qubit():
     return """operation AllocateQubit () : Unit {
@@ -126,6 +128,7 @@ def allocate_qubit():
         Z(q);
     }
 }"""
+
 
 @pytest.fixture()
 def allocate_two_qubits():
@@ -144,14 +147,38 @@ def noop():
 
 
 @pytest.fixture()
+def with_entrypoint():
+    return """@EntryPoint()
+operation RunProgram (nQubits : Int) : Unit {
+    using (register = Qubit[nQubits]) {
+        H(register[0]);
+    }
+}"""
+
+
+@pytest.fixture()
+def with_namespace_and_entrypoint():
+    return """namespace Microsoft.Quantum.Foo {
+    @EntryPoint()
+    operation RunProgram (nQubits : Int) : Unit {
+        using (register = Qubit[nQubits]) {
+            H(register[0]);
+        }
+    }
+}"""
+
+
+@pytest.fixture()
 def noop_adj():
     return """operation DoNothingAdjoint () : Unit is Adj {
 }"""
+
 
 @pytest.fixture()
 def noop_ctl():
     return """operation DoNothingControl () : Unit is Ctl {
 }"""
+
 
 @pytest.fixture()
 def noop_adj_ctl():
@@ -164,16 +191,19 @@ def noop_input():
     return """operation DoNothingWithInput (q : Qubit[]) : Unit {
 }"""
 
+
 @pytest.fixture()
 def noop_two_input():
     return """operation DoNothingWithMultipleInput (q : Qubit[], i : Int) : Unit {
 }"""
+
 
 @pytest.fixture()
 def single_gate():
     return """operation SingleGate (q : Qubit[]) : Unit {
     H(q[0]);
 }"""
+
 
 @pytest.fixture()
 def two_gates():
