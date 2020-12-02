@@ -75,7 +75,7 @@ def measure_entangled_state_using_prepare():
 
 @pytest.fixture()
 def h_x_h():
-    return """operation HXH() : Unit {
+    return """operation HXH () : Unit {
     using (q = Qubit()) {
         within {
             H(q);
@@ -88,14 +88,14 @@ def h_x_h():
 
 @pytest.fixture()
 def is_plus():
-    return """operation IsPlus(q: Qubit) : Bool {
+    return """operation IsPlus (q: Qubit) : Bool {
     return (Measure([PauliX], [q]) == Zero);
 }"""
 
 
 @pytest.fixture()
 def is_minus():
-    return """operation IsMinus(q: Qubit) : Bool {
+    return """operation IsMinus (q: Qubit) : Bool {
     return (Measure([PauliX], [q]) == One);
 }"""
 
