@@ -83,7 +83,8 @@ class QSharpListener(ParseTreeListener):
 
             elif in_context(QSharpParser.UntilStatementContext):
                 # new line and indent before "fixup"
-                pre += NEWLINE + TAB * self.indentation
+                # pre += NEWLINE + TAB * self.indentation
+                pre += NEWLINE
 
         # Nodes with spaces
         if in_context(QSharpParser.NamespaceContext):
@@ -111,7 +112,22 @@ class QSharpListener(ParseTreeListener):
             # Before and after parens
             if first_node: #(
                 pre += " "
-            if last_node: #)
+            elif last_node: #)
+                post += " "
+            elif node.symbol.text == ",":
+                # comma inside tuple
+                post += " "
+
+        elif in_context(QSharpParser.IfStatementContext):
+            # Before and after parens
+            if first_node: #if
+                # pre += NEWLINE + TAB * self.indentation
+                pre += NEWLINE
+                post += " "
+
+        elif in_context(QSharpParser.CallExpressionContext):
+            # Comma inside call expression
+            if node.symbol.text == ",":
                 post += " "
 
         elif in_context(QSharpParser.LetStatementContext) or \
@@ -145,8 +161,15 @@ class QSharpListener(ParseTreeListener):
                 pre += " "
                 self._value = self._value.rstrip("\n")
 
-        indent = TAB * self.indentation if self._value.endswith(NEWLINE) else ""
-        self._value += f"{indent}{pre}{node.symbol.text}{post}"
+        # If the statement starts with a new line, add indentation
+        if pre.endswith(NEWLINE):
+            pre += TAB * self.indentation
+        # If the previous statement ended with a new line, insert 
+        # indentation before current statement
+        elif self._value.endswith(NEWLINE):
+            pre = TAB * self.indentation + pre
+
+        self._value += f"{pre}{node.symbol.text}{post}"
 
     def enterEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
