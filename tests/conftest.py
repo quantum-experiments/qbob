@@ -29,7 +29,7 @@ def hello_world_qubit():
 
 @pytest.fixture()
 def measure_entangled_state():
-    return """operation MeasureEntangledState() : Result[] {
+    return """operation MeasureEntangledState () : Result[] {
     using (qubits = Qubit[2]) {
         H(qubits[0]);
         CNOT(qubits[0], qubits[1]);

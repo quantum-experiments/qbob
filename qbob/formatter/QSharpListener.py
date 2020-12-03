@@ -61,10 +61,6 @@ class QSharpListener(ParseTreeListener):
                 self.indentation += 1
                 post += NEWLINE
 
-            elif in_context(QSharpParser.ReturnStatementContext):
-                # return statement
-                pre += NEWLINE
-
         elif last_node:
             if in_context(QSharpParser.ScopeContext):
                 # finish a scope }
@@ -77,7 +73,9 @@ class QSharpListener(ParseTreeListener):
             
             elif in_context(QSharpParser.ExpressionStatementContext) or \
                 in_context(QSharpParser.MutableStatementContext) or \
-                in_context(QSharpParser.SetStatementContext):
+                in_context(QSharpParser.SetStatementContext) or \
+                in_context(QSharpParser.ReturnStatementContext) or \
+                in_context(QSharpParser.LetStatementContext):
                 # end an expression ;
                 post += NEWLINE
 
@@ -92,7 +90,9 @@ class QSharpListener(ParseTreeListener):
             if first_node:
                 post += " "
             if node.symbol.text == ":":
-                # space before the semicolon :
+                # space before the colon :
+                pre += " "
+            elif node.symbol.text == "{":
                 pre += " "
 
         elif in_context(QSharpParser.CallableDeclarationContext):
@@ -103,7 +103,7 @@ class QSharpListener(ParseTreeListener):
                 post += " "
 
         elif in_context(QSharpParser.NamedItemContext):
-            # Space around semicolon in func or op signature
+            # Space around colon in func or op signature
             if node.symbol.text == ":":
                 pre += " "
                 post += " "
@@ -116,6 +116,11 @@ class QSharpListener(ParseTreeListener):
                 post += " "
             elif node.symbol.text == ",":
                 # comma inside tuple
+                post += " "
+
+        elif in_context(QSharpParser.ArrayExpressionContext):
+            # comma inside list
+            if node.symbol.text == ",":
                 post += " "
 
         elif in_context(QSharpParser.IfStatementContext):
