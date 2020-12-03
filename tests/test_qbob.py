@@ -176,6 +176,35 @@ def test_hello_world_qubit(hello_world_qubit):
     assert no_whitespace_equals(hello_world_qubit, qsharp_code)
 
 
+def test_nested_operations(prepare_entangled_state, measure_entangled_state_using_prepare):
+    prepare_qbob = qbob.OperationBuilder("PrepareEntangledState")
+    prepare_qbob.is_adj = True
+    qubits = prepare_qbob.input("qubits", List[Qubit])
+    prepare_qbob += H(qubits[0])
+    prepare_qbob += CNOT(qubits[0], qubits[1])
+
+    qsharp_code = prepare_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(prepare_entangled_state)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()
+
+    measure_qbob = qbob.OperationBuilder("MeasureEntangledState")
+    with measure_qbob.allocate_qubits("qubits", 2) as q:
+        measure_qbob += prepare_qbob(q)
+        measure_qbob.returns([M(q[0]), M(q[1])])
+
+    qsharp_code = measure_qbob.to_str()
+    print(qsharp_code)
+    assert (without_whitespace(measure_entangled_state_using_prepare)
+            == without_whitespace(qsharp_code))
+
+    compiled_op = qsharp.compile(qsharp_code)
+    compiled_op()
+
+
 def test_prepare_entangled_state(prepare_entangled_state):
     my_qbob = qbob.OperationBuilder("PrepareEntangledState")
     my_qbob.is_adj = True

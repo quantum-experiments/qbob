@@ -7,10 +7,13 @@ class Token:
 
     def __getitem__(self, key: int) -> 'Token':
         assert self.type.endswith("[]")
-        return Token(f"{self.name}[{key}]", self.type[:-2])
+        return Token(f"{self}[{key}]", self.type[:-2])
 
     def __eq__(self, value: object) -> 'Token':
-        return Token(f"{self.name} == {value}", "Bool")
+        return Token(f"{self} == {value}", "Bool")
 
     def __str__(self) -> str:
         return self.name
+
+    def __repr__(self) -> str:
+        return f"Token({repr(self.name)}, {repr(self.type)})"
