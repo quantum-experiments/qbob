@@ -27,5 +27,5 @@ def Z(qubit: Token) -> Token:
 def CNOT(source_qubit: Token, target_qubit: Token) -> Token:
     return Token(f"CNOT({source_qubit}, {target_qubit})", "Unit")
 
-def print(s: str) -> Token:
+def Message(s: str) -> Token:
     return Token(f"Message(\"{s}\")", "Unit")

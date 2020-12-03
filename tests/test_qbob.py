@@ -148,7 +148,7 @@ def test_measure_until_one(measure_until_one):
 
 def test_hello_world(hello_world):
     my_qbob = qbob.OperationBuilder("HelloWorld")
-    my_qbob += print("Hello World!")
+    my_qbob += Message("Hello World!")
 
     qsharp_code = my_qbob.build()
     assert hello_world == qsharp_code
