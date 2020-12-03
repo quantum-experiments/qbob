@@ -17,6 +17,7 @@ class QSharpListener(ParseTreeListener):
         self._value = ""
         self.n = 0
         self.in_namespace = False
+        self.namespace_indentation_added = False
         self.in_declaration_prefix = False
         self.debug = debug
         super().__init__(*args, **kwargs)
@@ -47,21 +48,34 @@ class QSharpListener(ParseTreeListener):
 
         # Nodes with newlines
         if first_node and not last_node:
-            if in_context(QSharpParser.CallableDeclarationContext) and self.in_namespace and not self.in_declaration_prefix:
+            if in_context(QSharpParser.CallableDeclarationContext) and \
+                self.in_namespace and not self.in_declaration_prefix:
                 # define an operation or function within a namespace
-                self.indentation += 1
+                if not self.namespace_indentation_added:
+                    self.indentation += 1
+                    self.namespace_indentation_added = True
+                else:
+                    pre += NEWLINE
                 if not self._value.endswith(NEWLINE):
                     pre += NEWLINE
-        
-            elif in_context(QSharpParser.ScopeContext):
-                # start a scope {
-                pre += " "
-                self.indentation += 1
-                post += NEWLINE
-            
+
+            elif in_context(QSharpParser.OpenDirectiveContext):
+                # import a namespace
+                if not self.namespace_indentation_added:
+                    self.indentation += 1
+                    self.namespace_indentation_added = True
+                pre += NEWLINE
+                post += " "
+
             elif in_context(QSharpParser.CallableBodyContext):
                 # start an empty scope {
                 pre += " "
+        
+            elif in_context(QSharpParser.ScopeContext):
+                # start a scope {
+                self.indentation += 1
+                pre += " "
+                post += NEWLINE
 
         elif last_node:
             if in_context(QSharpParser.ScopeContext):
@@ -72,6 +86,8 @@ class QSharpListener(ParseTreeListener):
             elif in_context(QSharpParser.NamespaceContext):
                 # finish a namespace }
                 self.indentation -= 1
+                if not self._value.endswith(NEWLINE):
+                    pre += NEWLINE
 
             elif in_context(QSharpParser.AttributeContext) and self.in_namespace:
                 # Newline and indentation for declaration prefix e.g. @Entrypoint()

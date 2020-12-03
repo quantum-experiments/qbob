@@ -82,6 +82,7 @@ def test_format_file(test_file, formatted):
         "noop_two_input",
         "single_gate",
         "two_gates",
+        "namespace_with_import"
     ]
 )
 def test_format_operations_unit(fixture_name, request):

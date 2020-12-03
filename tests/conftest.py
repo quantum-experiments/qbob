@@ -205,3 +205,13 @@ def two_gates():
     H(q[0]);
     CNOT(q[0], q[1]);
 }"""
+
+
+@pytest.fixture()
+def namespace_with_import():
+    return """namespace Foo {
+    open Bar;
+    open Baz;
+
+    operation Spam () : Unit {}
+}"""
