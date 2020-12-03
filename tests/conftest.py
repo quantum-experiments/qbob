@@ -90,14 +90,14 @@ def h_x_h():
 @pytest.fixture()
 def is_plus():
     return """operation IsPlus (q : Qubit) : Bool {
-    return (Measure([PauliX], [q]) == Zero);
+    return Measure([PauliX], [q]) == Zero;
 }"""
 
 
 @pytest.fixture()
 def is_minus():
     return """operation IsMinus (q : Qubit) : Bool {
-    return (Measure([PauliX], [q]) == One);
+    return Measure([PauliX], [q]) == One;
 }"""
 
 

@@ -161,7 +161,7 @@ class OperationBuilder:
     @contextmanager
     def if_statement(self, condition: Token):
         assert condition.type == "Bool"
-        self.statements.append(f"if {condition.name} {{")
+        self.statements.append(f"if ({condition}) {{")
         try:
             yield
         finally:

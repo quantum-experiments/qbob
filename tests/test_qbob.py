@@ -8,7 +8,6 @@ from typing import List
 from qbob import qbob
 from qbob.intrinsics import *
 from qbob.types import *
-from qbob.utils import Equals
 
 
 def test_empty_operation(noop):
@@ -183,7 +182,7 @@ def test_prepare_entangled_state(prepare_entangled_state):
 def test_is_plus(is_plus):
     my_qbob = qbob.OperationBuilder("IsPlus")
     q = my_qbob.input("q", Qubit)
-    my_qbob.returns(Equals(Measure([Pauli.PauliX], [q]), Zero))
+    my_qbob.returns(Measure([Pauli.PauliX], [q]) == Zero)
 
     qsharp_code = my_qbob.build()
     print(qsharp_code)
@@ -193,7 +192,7 @@ def test_is_plus(is_plus):
 def test_is_minus(is_minus):
     my_qbob = qbob.OperationBuilder("IsMinus")
     q = my_qbob.input("q", Qubit)
-    my_qbob.returns(Equals(Measure([Pauli.PauliX], [q]), One))
+    my_qbob.returns(Measure([Pauli.PauliX], [q]) == One)
 
     qsharp_code = my_qbob.build()
     print(qsharp_code)
@@ -209,9 +208,9 @@ def test_teleport(teleport):
         my_qbob += CNOT(aux, target)
         my_qbob += CNOT(msg, aux)
         my_qbob += H(msg)
-        with my_qbob.if_statement(Equals(Measure([Pauli.PauliZ], [msg]), One)):
+        with my_qbob.if_statement(Measure([Pauli.PauliZ], [msg]) == One):
             my_qbob += Z(target)
-        with my_qbob.if_statement(Equals(Measure([Pauli.PauliZ], [aux]), One)):
+        with my_qbob.if_statement(Measure([Pauli.PauliZ], [aux]) == One):
             my_qbob += X(target)
 
     qsharp_code = my_qbob.build()
