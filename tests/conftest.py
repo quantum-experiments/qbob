@@ -215,3 +215,13 @@ def namespace_with_import():
 
     operation Spam () : Unit {}
 }"""
+
+
+@pytest.fixture()
+def namespace_with_import_and_entrypoint():
+    return """namespace Foo {
+    open Test;
+
+    @EntryPoint()
+    operation Bar () : Unit {}
+}"""

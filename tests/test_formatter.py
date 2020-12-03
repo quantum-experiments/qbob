@@ -82,10 +82,14 @@ def test_format_file(test_file, formatted):
         "noop_two_input",
         "single_gate",
         "two_gates",
-        "namespace_with_import"
+        "namespace_with_import",
+        "namespace_with_import_and_entrypoint"
     ]
 )
 def test_format_operations_unit(fixture_name, request):
     data = request.getfixturevalue(fixture_name)
+    formatter = QSharpDebugFormatter()
+    print(formatter.format_input(data))
     formatter = QSharpFormatter()
+    print(formatter.format_input(data))
     assert formatter.format_input(data) == data

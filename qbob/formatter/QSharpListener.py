@@ -17,7 +17,7 @@ class QSharpListener(ParseTreeListener):
         self._value = ""
         self.n = 0
         self.in_namespace = False
-        self.namespace_indentation_added = False
+        self.namespace_indentation_added = False # Keep track of indentation in namespaces
         self.in_declaration_prefix = False
         self.debug = debug
         super().__init__(*args, **kwargs)
@@ -91,7 +91,11 @@ class QSharpListener(ParseTreeListener):
 
             elif in_context(QSharpParser.AttributeContext) and self.in_namespace:
                 # Newline and indentation for declaration prefix e.g. @Entrypoint()
-                self.indentation += 1
+                if not self.namespace_indentation_added:
+                    self.indentation += 1
+                    self.namespace_indentation_added = True
+                else:
+                    pre += NEWLINE
                 pre += NEWLINE
             
             elif in_context(QSharpParser.ExpressionStatementContext) or \
@@ -212,6 +216,7 @@ class QSharpListener(ParseTreeListener):
     def enterEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = True
+            self.namespace_indentation_added = False
         elif isinstance(ctx, QSharpParser.DeclarationPrefixContext):
             # If declaration prefix is given, e.g. @Entrypoint()
             self.in_declaration_prefix = ctx.children is not None
