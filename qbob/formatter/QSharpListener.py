@@ -71,9 +71,9 @@ class QSharpListener(ParseTreeListener):
                 self.indentation -= 1
 
             elif in_context(QSharpParser.AttributeContext) and self.in_namespace:
+                # Newline and indentation for declaration prefix e.g. @Entrypoint()
                 self.indentation += 1
                 pre += NEWLINE
-                self.in_declaration_prefix = True
             
             elif in_context(QSharpParser.ExpressionStatementContext) or \
                 in_context(QSharpParser.MutableStatementContext) or \
