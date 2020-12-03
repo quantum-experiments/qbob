@@ -8,7 +8,10 @@ from unittest.mock import Mock
 from qbob import qbob
 
 
-@pytest.fixture(params=["hello_world", "hello_world_qubit", "measure_until_one", "h_x_h", "teleport"])
+@pytest.fixture(params=["hello_world", "hello_world_qubit", "measure_until_one", "h_x_h", "teleport",
+ "prepare_entangled_state", "allocate_qubit", "allocate_two_qubits", "noop", "noop_adj", "noop_ctl",
+ "noop_adj_ctl"])
+
 def operation_unit(request):
     return request.getfixturevalue(request.param)
 
@@ -87,3 +90,43 @@ def test_teleport(is_minus, teleport):
 }""")
     assert entrypoint.simulate(message=True)
     assert not entrypoint.simulate(message=False)
+
+
+def test_noop_input(noop_input):
+    qsharp.compile(noop_input)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using (qubit = Qubit[1] {
+            DoNothingWithInput(qubit);
+        }
+    }""")
+    entrypoint.simulate()
+
+
+def test_noop_input(noop_two_input):
+    qsharp.compile(noop_two_input)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using (qubits = Qubit[2]) {
+            DoNothingWithMultipleInput(qubits, 2);
+        }
+    }""")
+    entrypoint.simulate()
+
+
+def test_single_gate(single_gate):
+    qsharp.compile(single_gate)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using (qubits = Qubit[1]) {
+            SingleGate(qubits);
+        }
+    }""")
+    entrypoint.simulate()
+
+
+def test_two_gates(two_gates):
+    qsharp.compile(two_gates)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using (qubits = Qubit[2]) {
+            TwoGates(qubits);
+        }
+    }""")
+    entrypoint.simulate()

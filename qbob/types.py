@@ -1,6 +1,7 @@
 """Define mappings between Python types and Q# types."""
 
 from typing import List, Union, _GenericAlias
+from enum import Enum
 
 def to_qsharp_type(python_type: type) -> str:
     if python_type == List[Qubit]:
@@ -32,3 +33,8 @@ class Result:
 
 Zero = Result("Zero")
 One = Result("One")
+
+class Pauli(Enum):
+    PauliX = 1
+    PauliY = 2
+    PauliZ = 3

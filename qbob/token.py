@@ -11,3 +11,6 @@ class Token:
 
     def __eq__(self, value: object) -> 'Token':
         return Token(f"{self.name} == {value}", "Bool")
+
+    def __str__(self) -> str:
+        return self.name

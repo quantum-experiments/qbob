@@ -135,3 +135,49 @@ def allocate_two_qubits():
         Z(q[1]);
     }
 }"""
+
+
+@pytest.fixture()
+def noop():
+    return """operation DoNothing () : Unit {
+}"""
+
+
+@pytest.fixture()
+def noop_adj():
+    return """operation DoNothingAdjoint () : Unit is Adj {
+}"""
+
+@pytest.fixture()
+def noop_ctl():
+    return """operation DoNothingControl () : Unit is Ctl {
+}"""
+
+@pytest.fixture()
+def noop_adj_ctl():
+    return """operation DoNothingAdjointControl () : Unit is Adj+Ctl {
+}"""
+
+
+@pytest.fixture()
+def noop_input():
+    return """operation DoNothingWithInput (q : Qubit[]) : Unit {
+}"""
+
+@pytest.fixture()
+def noop_two_input():
+    return """operation DoNothingWithMultipleInput (q : Qubit[], i : Int) : Unit {
+}"""
+
+@pytest.fixture()
+def single_gate():
+    return """operation SingleGate (q : Qubit[]) : Unit {
+    H(q[0]);
+}"""
+
+@pytest.fixture()
+def two_gates():
+    return """operation TwoGates (q : Qubit[]) : Unit {
+    H(q[0]);
+    CNOT(q[0], q[1]);
+}"""

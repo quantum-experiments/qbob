@@ -116,6 +116,15 @@ class OperationBuilder:
                     self += expression
                 self.statements.append("}")
 
+    @contextmanager
+    def if_statement(self, condition: Token):
+        assert condition.type == "Bool"
+        self.statements.append(f"if {condition.name} {{")
+        try:
+            yield
+        finally:
+            self.statements.append("}")
+
     def __iadd__(self, expression: Token) -> 'OperationBuilder':
         self.statements.append(f"{expression.name};")
         return self
