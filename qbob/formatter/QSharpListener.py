@@ -135,7 +135,6 @@ class QSharpListener(ParseTreeListener):
         elif in_context(QSharpParser.IfStatementContext):
             # Before and after parens
             if first_node: #if
-                # pre += NEWLINE + TAB * self.indentation
                 pre += NEWLINE
                 post += " "
 
