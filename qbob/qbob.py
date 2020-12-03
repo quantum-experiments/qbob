@@ -5,9 +5,15 @@ from typing import List, Union, _GenericAlias
 
 from qbob.token import Token
 from qbob.types import to_qsharp_type
+from qbob.formatter import QSharpFormatter
+
+
+NEWLINE = "\n"
 
 
 class OperationBuilder:
+
+    _OPERATION_TEMPLATE = "operation {name} ( {arguments} ) : {return_type} {characteristics} {{ {statements} }}"
 
     def __init__(self, operation_name: str):
         self.operation_name = operation_name
@@ -18,20 +24,44 @@ class OperationBuilder:
         self.statements = []
         self.return_type = "Unit"
 
-    def to_str(self) -> str:
-        return (
-            f"operation {self.operation_name}("
-            + ",".join([f"{n} : {to_qsharp_type(t)}"
-                        for n,t in self.input_parameters.items()])
-            + f") : {self.return_type} "
-            + ("is Adj+Ctl" if self.is_adj and self.is_ctl
+    @property
+    def arguments(self) -> str:
+        return ",".join(
+            [
+                f"{n} : {to_qsharp_type(t)}" for n, t in self.input_parameters.items()
+            ]
+        )
+
+    @property
+    def characteristics(self) -> str:
+        chars = ("is Adj + Ctl" if self.is_adj and self.is_ctl
                 else "is Adj" if self.is_adj
                 else "is Ctl" if self.is_ctl
                 else "")
-            + " {"
-            + "\n".join(self.statements)
-            + "}"
+        return chars
+
+    @property
+    def op_statements(self) -> str:
+        return NEWLINE.join(self.statements)
+
+    def to_str(self) -> str:
+        return self._OPERATION_TEMPLATE.format(
+            name=self.operation_name,
+            arguments=self.arguments,
+            return_type=self.return_type,
+            characteristics=self.characteristics,
+            statements=self.op_statements
         )
+
+    def build(self) -> str:
+        """Generate formatted Q# code from the builder
+
+        :return: Formatted Q# code
+        :rtype: str
+        """
+        formatter = QSharpFormatter()
+        unformatted_code = self.to_str()
+        return formatter.format_input(unformatted_code)
 
     def __call__(self, *args) -> Token:
         assert len(args) == len(self.input_parameters)
