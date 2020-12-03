@@ -130,3 +130,23 @@ def test_two_gates(two_gates):
         }
     }""")
     entrypoint.simulate()
+
+
+def test_measure_array(measure_array):
+    qsharp.compile(measure_array)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[2]) {
+            MeasureArray(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+
+def test_measure_array_items(measure_array_items):
+    qsharp.compile(measure_array_items)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[2]) {
+            MeasureArrayItems(qubits);
+    }
+}""")
+    entrypoint.simulate()

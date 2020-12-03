@@ -181,3 +181,17 @@ def two_gates():
     H(q[0]);
     CNOT(q[0], q[1]);
 }"""
+
+
+@pytest.fixture()
+def measure_array():
+    return """operation MeasureArray(qubits : Qubit[]) : Unit {
+        let result = Measure([PauliZ, PauliZ], qubits);
+}"""
+
+
+@pytest.fixture()
+def measure_array_items():
+    return """operation MeasureArrayItems(qubits : Qubit[]) : Unit {
+        let result = Measure([PauliZ, PauliZ], [qubits[0], qubits[1]]);
+}"""

@@ -8,9 +8,15 @@ def H(qubit: Token) -> Token:
 def M(qubit: Token) -> Token:
     return Token(f"M({qubit})", "Result")
 
-def Measure(bases, qubits: Token) -> Token:
-    return Token(f"Measure([{','.join(f'{n.name}' for n in bases)}], "
-        + f"[{','.join(f'{q.name}' for q in qubits)}])", "Result")
+def Measure(bases: list, qubits: object) -> Token:
+    assert isinstance (bases, list)
+    if isinstance(qubits, list):
+        return Token(f"Measure([{','.join(f'{n.name}' for n in bases)}], "
+            + f"[{','.join(f'{q.name}' for q in qubits)}])", "Result")
+
+    if isinstance(qubits, Token):
+        assert (qubits.type == "Qubit[]")
+        return Token(f"Measure([{','.join(f'{n.name}' for n in bases)}], {qubits.name})", "Result")
 
 def Reset(qubit: Token) -> Token:
     return Token(f"Reset({qubit})", "Unit")
