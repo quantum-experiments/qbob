@@ -74,10 +74,16 @@ class QSharpListener(ParseTreeListener):
             elif in_context(QSharpParser.NamespaceContext):
                 # finish a namespace }
                 self.indentation -= 1
-
-            elif in_context(QSharpParser.ExpressionStatementContext):
+            
+            elif in_context(QSharpParser.ExpressionStatementContext) or \
+                in_context(QSharpParser.MutableStatementContext) or \
+                in_context(QSharpParser.SetStatementContext):
                 # end an expression ;
                 post += NEWLINE
+
+            elif in_context(QSharpParser.UntilStatementContext):
+                # new line and indent before "fixup"
+                pre += NEWLINE + TAB * self.indentation
 
         # Nodes with spaces
         if in_context(QSharpParser.NamespaceContext):
@@ -108,7 +114,9 @@ class QSharpListener(ParseTreeListener):
             if last_node: #)
                 post += " "
 
-        elif in_context(QSharpParser.LetStatementContext):
+        elif in_context(QSharpParser.LetStatementContext) or \
+            in_context(QSharpParser.MutableStatementContext) or \
+            in_context(QSharpParser.SetStatementContext):
             # Spaces in let statement
             if first_node:
                 post += " "
@@ -121,13 +129,15 @@ class QSharpListener(ParseTreeListener):
             if first_node:
                 post += " "
 
-        elif in_context(QSharpParser.UsingStatementContext):
-            # Space before paren (
-            if first_node:
-                post += " "
-            
-            if node.symbol.text == "=":
+        elif in_context(QSharpParser.UsingStatementContext) or \
+            in_context(QSharpParser.UntilStatementContext) or \
+            in_context(QSharpParser.EqualsExpressionContext):
+
+            if node.symbol.text in ["=", "=="]:
                 pre += " "
+                post += " "
+            # Space before paren (
+            elif first_node:
                 post += " "
 
         elif in_context(QSharpParser.ApplyStatementContext):

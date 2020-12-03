@@ -40,9 +40,9 @@ def measure_entangled_state():
 
 @pytest.fixture()
 def measure_until_one():
-    return """operation MeasureUntilOne() : Unit {
+    return """operation MeasureUntilOne () : Unit {
     using (q = Qubit()) {
-        mutable result = Zero;
+        mutable result = Zero;
         repeat {
             H(q);
             set result = M(q);
@@ -142,7 +142,7 @@ def allocate_two_qubits():
 @pytest.fixture()
 def with_entrypoint():
     return """@EntryPoint()
-operation RunProgram (nQubits : Int) : Unit {​
+operation RunProgram (nQubits : Int) : Unit {​
     using (register = Qubit[nQubits]) {
         H(register[0]);
     }

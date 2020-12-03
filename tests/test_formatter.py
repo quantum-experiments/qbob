@@ -59,7 +59,7 @@ def test_format_file(test_file, formatted):
         "hello_world", 
         "hello_world_wrong", 
         "hello_world_qubit", 
-        # "measure_until_one",
+        "measure_until_one",
         "h_x_h",
         #"teleport"
     ]
@@ -70,12 +70,12 @@ def test_format_operations_unit(fixture_name, request):
     assert formatter.format_input(data) == data
 
 
-def test_case(hello_world, h_x_h):
+def test_case(hello_world, measure_until_one):
     # formatter = QSharpDebugFormatter()
     # print(formatter.format_input(hello_world))
     # print("\n")
 
-    data = h_x_h
+    data = measure_until_one
 
     formatter = QSharpDebugFormatter()
     print(formatter.format_input(data))
