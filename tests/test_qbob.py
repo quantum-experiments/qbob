@@ -167,27 +167,6 @@ def test_hello_world_qubit(hello_world_qubit):
     assert hello_world_qubit == qsharp_code
 
 
-def test_nested_operations(prepare_entangled_state, measure_entangled_state_using_prepare):
-    prepare_qbob = qbob.OperationBuilder("PrepareEntangledState")
-    prepare_qbob.is_adj = True
-    qubits = prepare_qbob.input("qubits", List[Qubit])
-    prepare_qbob += H(qubits[0])
-    prepare_qbob += CNOT(qubits[0], qubits[1])
-
-    qsharp_code = prepare_qbob.build()
-    print(qsharp_code)
-    assert prepare_entangled_state == qsharp_code
-
-    measure_qbob = qbob.OperationBuilder("MeasureEntangledState")
-    with measure_qbob.allocate_qubits("qubits", 2) as q:
-        measure_qbob += prepare_qbob(q)
-        measure_qbob.returns([M(q[0]), M(q[1])])
-
-    qsharp_code = measure_qbob.build()
-    print(qsharp_code)
-    assert measure_entangled_state_using_prepare == qsharp_code
-
-
 def test_prepare_entangled_state(prepare_entangled_state):
     my_qbob = qbob.OperationBuilder("PrepareEntangledState")
     my_qbob.is_adj = True
@@ -239,4 +218,35 @@ def test_teleport(teleport):
     print(qsharp_code)
     assert teleport == qsharp_code
 
-#TODO: test_measure_entangled_state_using_prepare -- add after BOB 3 (nested operations)
+
+def test_nested_operations(prepare_entangled_state, measure_entangled_state_using_prepare):
+    prepare_qbob = qbob.OperationBuilder("PrepareEntangledState")
+    prepare_qbob.is_adj = True
+    qubits = prepare_qbob.input("qubits", List[Qubit])
+    prepare_qbob += H(qubits[0])
+    prepare_qbob += CNOT(qubits[0], qubits[1])
+
+    qsharp_code = prepare_qbob.build()
+    print(qsharp_code)
+    assert prepare_entangled_state == qsharp_code
+
+    measure_qbob = qbob.OperationBuilder("MeasureEntangledState")
+    with measure_qbob.allocate_qubits("qubits", 2) as q:
+        measure_qbob += prepare_qbob(q)
+        measure_qbob.returns([M(q[0]), M(q[1])])
+
+    qsharp_code = measure_qbob.build()
+    print(qsharp_code)
+    assert measure_entangled_state_using_prepare == qsharp_code
+
+
+def test_empty_entrypoint(with_entrypoint):
+    my_qbob = qbob.OperationBuilder("RunProgram")
+    my_qbob.is_entrypoint = True
+    num_qubits = my_qbob.input("nQubits", int)
+    with my_qbob.allocate_qubits("register", num_qubits) as q:
+        my_qbob += H(q[0])
+
+    qsharp_code = my_qbob.build()
+    print(qsharp_code)
+    assert with_entrypoint == qsharp_code

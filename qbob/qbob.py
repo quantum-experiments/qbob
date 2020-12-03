@@ -1,4 +1,4 @@
-"""Main module."""
+"""Define the OperationBuilder class."""
 
 from contextlib import contextmanager
 from typing import List, Union, _GenericAlias
@@ -13,16 +13,25 @@ NEWLINE = "\n"
 
 class OperationBuilder:
 
-    _OPERATION_TEMPLATE = "operation {name} ( {arguments} ) : {return_type} {characteristics} {{ {statements} }}"
+    _OPERATION_TEMPLATE = \
+        """{attributes} operation {name} ( {arguments} ) : {return_type} {characteristics}
+        {{
+            {statements}
+        }}"""
 
     def __init__(self, operation_name: str):
         self.operation_name = operation_name
         self.input_parameters = {}
         self.is_adj = False
         self.is_ctl = False
+        self.is_entrypoint = False
 
         self.statements = []
         self.return_type = "Unit"
+
+    @property
+    def attributes(self) -> str:
+        return "@EntryPoint()" if self.is_entrypoint else ""
 
     @property
     def arguments(self) -> str:
@@ -47,6 +56,7 @@ class OperationBuilder:
     def to_str(self) -> str:
         return self._OPERATION_TEMPLATE.format(
             name=self.operation_name,
+            attributes=self.attributes,
             arguments=self.arguments,
             return_type=self.return_type,
             characteristics=self.characteristics,
@@ -100,9 +110,10 @@ class OperationBuilder:
         self.return_type = ','.join([to_qsharp_return_type(r) for r in return_tokens])
         
     @contextmanager
-    def allocate_qubits(self, register_name: str, num_qubits: int):
-        assert num_qubits > 0
-        if num_qubits == 1:
+    def allocate_qubits(self, register_name: str, num_qubits: Union[int, Token]):
+        assert isinstance(num_qubits, Token) or num_qubits > 0
+
+        if isinstance(num_qubits, int) and num_qubits == 1:
             self.statements.append(f"using ({register_name} = Qubit())")
             type_name = "Qubit"
         else:

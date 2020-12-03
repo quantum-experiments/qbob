@@ -6,7 +6,7 @@ class Token:
         self.type = type
 
     def __getitem__(self, key: int) -> 'Token':
-        assert self.type.endswith("[]")
+        assert self.type.endswith("[]"), self.type
         return Token(f"{self}[{key}]", self.type[:-2])
 
     def __eq__(self, value: object) -> 'Token':
