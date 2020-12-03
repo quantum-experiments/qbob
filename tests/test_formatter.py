@@ -63,7 +63,13 @@ def test_format_file(test_file, formatted):
         "h_x_h",
         "teleport",
         "measure_entangled_state", 
-        # "measure_entangled_state_using_prepare"
+        "measure_entangled_state_using_prepare",
+        "prepare_entangled_state",
+        "is_plus",
+        "is_minus",
+        "allocate_qubit",
+        "allocate_two_qubits",
+        "with_entrypoint"
     ]
 )
 def test_format_operations_unit(fixture_name, request):
@@ -72,12 +78,12 @@ def test_format_operations_unit(fixture_name, request):
     assert formatter.format_input(data) == data
 
 
-def test_case(hello_world, measure_entangled_state):
+def test_case(hello_world, with_namespace_and_entrypoint):
     # formatter = QSharpDebugFormatter()
     # print(formatter.format_input(hello_world))
     # print("\n")
 
-    data = measure_entangled_state
+    data = with_namespace_and_entrypoint
 
     formatter = QSharpDebugFormatter()
     print(formatter.format_input(data))

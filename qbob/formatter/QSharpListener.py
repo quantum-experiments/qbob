@@ -21,6 +21,7 @@ class QSharpListener(ParseTreeListener):
         self.newline = False
         self.n = 0
         self.in_namespace = False
+        self.in_declaration_prefix = False
         self.debug = debug
         super().__init__(*args, **kwargs)
 
@@ -50,7 +51,7 @@ class QSharpListener(ParseTreeListener):
 
         # Nodes with newlines
         if first_node and not last_node:
-            if in_context(QSharpParser.CallableDeclarationContext) and self.in_namespace:
+            if in_context(QSharpParser.CallableDeclarationContext) and self.in_namespace and not self.in_declaration_prefix:
                 # define an operation or function within a namespace
                 self.indentation += 1
                 pre += NEWLINE
@@ -70,6 +71,10 @@ class QSharpListener(ParseTreeListener):
             elif in_context(QSharpParser.NamespaceContext):
                 # finish a namespace }
                 self.indentation -= 1
+
+            elif in_context(QSharpParser.AttributeContext) and self.in_namespace:
+                self.indentation += 1
+                pre += NEWLINE
             
             elif in_context(QSharpParser.ExpressionStatementContext) or \
                 in_context(QSharpParser.MutableStatementContext) or \
@@ -116,6 +121,12 @@ class QSharpListener(ParseTreeListener):
                 post += " "
             elif node.symbol.text == ",":
                 # comma inside tuple
+                post += " "
+
+        elif in_context(QSharpParser.CharacteristicsContext):
+            # "is"
+            if first_node:
+                pre += " "
                 post += " "
 
         elif in_context(QSharpParser.ArrayExpressionContext):
@@ -179,6 +190,8 @@ class QSharpListener(ParseTreeListener):
     def enterEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = True
+        elif isinstance(ctx, QSharpParser.DeclarationPrefixContext):
+            self.in_declaration_prefix = True
         if self.debug:
             print(f"{self.n}:{type(ctx)}")
             self._value += f"{self.n}["
@@ -187,6 +200,10 @@ class QSharpListener(ParseTreeListener):
     def exitEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = False
+        elif isinstance(ctx, QSharpParser.DeclarationPrefixContext):
+            self.in_declaration_prefix = False
+            if ctx.children is not None:
+                self._value += NEWLINE
         if self.debug:
             self._value += "]"
 
