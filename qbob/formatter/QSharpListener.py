@@ -1,5 +1,6 @@
 import sys
-from antlr4 import *
+
+from antlr4 import ParseTreeListener, FileStream, CommonTokenStream, ParseTreeWalker
 from antlr4.tree import Tree
 from qbob.formatter.QSharpLexer import QSharpLexer
 from qbob.formatter.QSharpParser import QSharpParser, ParserRuleContext
@@ -7,10 +8,6 @@ from qbob.formatter.QSharpParser import QSharpParser, ParserRuleContext
 TAB = "    "
 NEWLINE = "\n"
 
-def get_level(node, level = -1):
-    if node is None:
-        return level
-    return get_level(node.parentCtx, level=level + 1)
 
 class QSharpListener(ParseTreeListener):
     """Listener for QSharp Parse tree that formats Q# code
@@ -54,7 +51,9 @@ class QSharpListener(ParseTreeListener):
             if in_context(QSharpParser.CallableDeclarationContext) and self.in_namespace and not self.in_declaration_prefix:
                 # define an operation or function within a namespace
                 self.indentation += 1
-                pre += NEWLINE
+                pre += "$"
+                if not self._value.endswith(NEWLINE):
+                    pre += NEWLINE
         
             elif in_context(QSharpParser.ScopeContext):
                 # start a scope {
@@ -75,6 +74,7 @@ class QSharpListener(ParseTreeListener):
             elif in_context(QSharpParser.AttributeContext) and self.in_namespace:
                 self.indentation += 1
                 pre += NEWLINE
+                self.in_declaration_prefix = True
             
             elif in_context(QSharpParser.ExpressionStatementContext) or \
                 in_context(QSharpParser.MutableStatementContext) or \
@@ -86,7 +86,6 @@ class QSharpListener(ParseTreeListener):
 
             elif in_context(QSharpParser.UntilStatementContext):
                 # new line and indent before "fixup"
-                # pre += NEWLINE + TAB * self.indentation
                 pre += NEWLINE
 
         # Nodes with spaces
@@ -201,9 +200,11 @@ class QSharpListener(ParseTreeListener):
         if isinstance(ctx, QSharpParser.NamespaceContext):
             self.in_namespace = False
         elif isinstance(ctx, QSharpParser.DeclarationPrefixContext):
-            self.in_declaration_prefix = False
             if ctx.children is not None:
+                # Add newline after @Entrypoint()
                 self._value += NEWLINE
+        elif isinstance(ctx, QSharpParser.CallableDeclarationContext):
+            self.in_declaration_prefix = False
         if self.debug:
             self._value += "]"
 
