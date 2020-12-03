@@ -73,7 +73,15 @@ def test_format_file(test_file, formatted):
         "allocate_qubit",
         "allocate_two_qubits",
         "with_entrypoint",
-        "with_namespace_and_entrypoint"
+        "with_namespace_and_entrypoint",
+        "noop",
+        "noop_adj",
+        "noop_ctl",
+        "noop_adj_ctl",
+        "noop_input",
+        "noop_two_input",
+        "single_gate",
+        "two_gates",
     ]
 )
 def test_format_operations_unit(fixture_name, request):

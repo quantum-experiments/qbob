@@ -15,7 +15,6 @@ class QSharpListener(ParseTreeListener):
     def __init__(self, debug: bool = False, *args, **kwargs):
         self.indentation = 0
         self._value = ""
-        self.newline = False
         self.n = 0
         self.in_namespace = False
         self.in_declaration_prefix = False
@@ -59,6 +58,10 @@ class QSharpListener(ParseTreeListener):
                 pre += " "
                 self.indentation += 1
                 post += NEWLINE
+            
+            elif in_context(QSharpParser.CallableBodyContext):
+                # start an empty scope {
+                pre += " "
 
         elif last_node:
             if in_context(QSharpParser.ScopeContext):
@@ -123,7 +126,13 @@ class QSharpListener(ParseTreeListener):
 
         elif in_context(QSharpParser.CharacteristicsContext):
             # "is"
+            pre += " "
             if first_node:
+                post += " "
+        
+        elif in_context(QSharpParser.CharacteristicsExpressionContext):
+            # +
+            if node.symbol.text == "+":
                 pre += " "
                 post += " "
 

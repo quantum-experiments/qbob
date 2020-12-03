@@ -141,12 +141,6 @@ def allocate_two_qubits():
 
 
 @pytest.fixture()
-def noop():
-    return """operation DoNothing () : Unit {
-}"""
-
-
-@pytest.fixture()
 def with_entrypoint():
     return """@EntryPoint()
 operation RunProgram (nQubits : Int) : Unit {
@@ -169,33 +163,33 @@ def with_namespace_and_entrypoint():
 
 
 @pytest.fixture()
+def noop():
+    return """operation DoNothing () : Unit {}"""
+
+
+@pytest.fixture()
 def noop_adj():
-    return """operation DoNothingAdjoint () : Unit is Adj {
-}"""
+    return """operation DoNothingAdjoint () : Unit is Adj {}"""
 
 
 @pytest.fixture()
 def noop_ctl():
-    return """operation DoNothingControl () : Unit is Ctl {
-}"""
+    return """operation DoNothingControl () : Unit is Ctl {}"""
 
 
 @pytest.fixture()
 def noop_adj_ctl():
-    return """operation DoNothingAdjointControl () : Unit is Adj+Ctl {
-}"""
+    return """operation DoNothingAdjointControl () : Unit is Adj + Ctl {}"""
 
 
 @pytest.fixture()
 def noop_input():
-    return """operation DoNothingWithInput (q : Qubit[]) : Unit {
-}"""
+    return """operation DoNothingWithInput (q : Qubit[]) : Unit {}"""
 
 
 @pytest.fixture()
 def noop_two_input():
-    return """operation DoNothingWithMultipleInput (q : Qubit[], i : Int) : Unit {
-}"""
+    return """operation DoNothingWithMultipleInput (q : Qubit[], i : Int) : Unit {}"""
 
 
 @pytest.fixture()
