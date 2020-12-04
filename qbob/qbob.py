@@ -1,4 +1,7 @@
 """Define the OperationBuilder class."""
+import tempfile
+import uuid
+import os
 
 from contextlib import contextmanager
 from typing import List, Union, _GenericAlias
@@ -9,6 +12,7 @@ from qbob.formatter import QSharpFormatter
 
 
 NEWLINE = "\n"
+TEMP_DIR_KEYWORD = "qbob_state_log_temp_dir"
 
 
 class OperationBuilder:
@@ -19,15 +23,17 @@ class OperationBuilder:
             {statements}
         }}"""
 
-    def __init__(self, operation_name: str, entrypoint: bool=False, adj: bool = False, ctl: bool = False):
+    def __init__(self, operation_name: str, entrypoint: bool=False, adj: bool = False, ctl: bool = False, 
+        debug: bool = False):
         self.operation_name = operation_name
         self.input_parameters = {}
         self.is_adj = adj
         self.is_ctl = ctl
         self.is_entrypoint = entrypoint
-
+        self._state_log = {}
         self.statements = []
         self.return_type = "Unit"
+        self.debug = debug
 
     @property
     def attributes(self) -> str:
@@ -63,19 +69,98 @@ class OperationBuilder:
             statements=self.op_statements
         )
 
+    def formatted(self):
+        formatter = QSharpFormatter()
+        unformatted_code = self.to_str()
+        return formatter.format_input(unformatted_code)
+
+    def build_debug(self) -> str:
+        """Build the Q# code and insert the output of DumpRegister 
+        (which was added using qbob.state_log) into the code
+
+        # Debug steps:
+        # 0. generate Q# code ("source" file)
+        # 1. replace the temp folder placeholder in the Q# "debug" code with an actual temp folder
+        # 2. compile and run, output to temp files
+        # 3. read files and insert back into "source" file as comments
+        # 4. return new Q# code with comments as string:
+
+        # Hi from QBOB!
+        # Falling back to base DumpRegister.
+        # Falling back to base DumpRegister.
+        # Falling back to base DumpRegister.
+        # operation TestDumpMachine () : Result[] {
+        #     Message("Hi from QBOB!");
+        #     using (q = Qubit[3]) {
+        #         H(q[0]);
+        #         // # wave function for qubits with ids (least to most significant): 0
+        #         // ∣0❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+        #         // ∣1❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+        #         H(q[1]);
+        #         // # wave function for qubits with ids (least to most significant): 1
+        #         // ∣0❭:	 0.707107 +  0.000000 i	 == 	**********           [ 0.500000 ]     --- [  0.00000 rad ]
+        #         // ∣1❭:	 0.707107 +  0.000000 i	 == 	**********           [ 0.500000 ]     --- [  0.00000 rad ]
+        #         X(q[2]);
+        #         // # wave function for qubits with ids (least to most significant): 2
+        #         // ∣0❭:	 0.000000 +  0.000000 i	 == 	                     [ 0.000000 ]                   
+        #         // ∣1❭:	 1.000000 +  0.000000 i	 == 	******************** [ 1.000000 ]     --- [  0.00000 rad ]
+        #         return [M(q[0]), M(q[1]), M(q[2])];
+        #     }
+        # }
+
+        :return: Formatted code with 
+        :rtype: str
+        """
+        code = self.formatted()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            code_to_compile = code.replace(TEMP_DIR_KEYWORD, temp_dir)
+
+            # Compile the program with DumpRegister operations and save to files in temp dir
+            import qsharp
+            qsharp_callable = qsharp.compile(code_to_compile)
+            qsharp_callable.simulate()
+            
+            # Read files and replace DumpRegister lines with file contents
+            new_code = code
+            for guid, token in self._state_log.items():
+                with open(os.path.join(temp_dir, guid)) as f:
+                    state_log = f.read()
+
+                # ugly hack...
+                indentation = " " * new_code[:new_code.index(str(token))][::-1].index("\n")
+                state_log_comment = "// " + state_log.rstrip("\n").replace("\n", f"\n{indentation}// ")
+                new_code = new_code.replace(f"{token};", state_log_comment)
+        
+        return new_code
+
+
     def build(self) -> str:
         """Generate formatted Q# code from the builder
 
         :return: Formatted Q# code
         :rtype: str
         """
-        formatter = QSharpFormatter()
-        unformatted_code = self.to_str()
-        return formatter.format_input(unformatted_code)
+        if self.debug is True and self._state_log:
+            return self.build_debug()
+        return self.formatted()
 
     def compile(self):
         import qsharp
-        return qsharp.compile(self.build())
+        return qsharp.compile(self.formatted())
+
+    def generate_temporary_file(self):
+        if self.temp_dir is None:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                self.temp_dir = temp_dir
+
+    def log_state(self, register: Union[Token, List[Token]]):
+        if self.debug is True:
+            from qbob.diagnostics import DumpRegister
+            guid = str(uuid.uuid4())
+            temp_file_location = os.path.join(TEMP_DIR_KEYWORD, guid)
+            token = DumpRegister(temp_file_location, register)
+            self += token
+            self._state_log[guid] = token # keep track of guid to dumpregister tokens
 
     def __call__(self, *args) -> Token:
         assert len(args) == len(self.input_parameters)
@@ -112,7 +197,12 @@ class OperationBuilder:
         self.statements.append(f"return {ret_val};")
 
         self.return_type = ','.join([to_qsharp_return_type(r) for r in return_tokens])
-        
+
+    @contextmanager
+    def allocate_qubit(self, register_name: str):
+        yield self.allocate_qubits(register_name=register_name, num_qubits=1)
+    
+    
     @contextmanager
     def allocate_qubits(self, register_name: str, num_qubits: Union[int, Token]):
         assert isinstance(num_qubits, Token) or num_qubits > 0
