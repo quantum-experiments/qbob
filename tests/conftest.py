@@ -230,10 +230,18 @@ def namespace_with_import():
 }"""
 
 
+@pytest.fixture()
 def namespace_with_import_and_entrypoint():
     return """namespace Foo {
     open Test;
 
     @EntryPoint()
     operation Bar () : Unit {}
+}"""
+
+
+@pytest.fixture()
+def controlled_gate():
+    return """operation ControlledZ (qs : Qubit[]) : Unit is Adj + Ctl {
+    Controlled Z([qs[0]], qs[1]);
 }"""

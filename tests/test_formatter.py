@@ -83,7 +83,8 @@ def test_format_file(test_file, formatted):
         "single_gate",
         "two_gates",
         "namespace_with_import",
-        "namespace_with_import_and_entrypoint"
+        "namespace_with_import_and_entrypoint",
+        "controlled_gate",
     ]
 )
 def test_format_operations_unit(fixture_name, request):

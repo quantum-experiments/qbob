@@ -182,8 +182,9 @@ class QSharpListener(ParseTreeListener):
                 pre += " "
                 post += " "
 
-        elif in_context(QSharpParser.ReturnStatementContext):
-            # Space after return token
+        elif in_context(QSharpParser.ReturnStatementContext) or \
+            in_context(QSharpParser.ControlledExpressionContext):
+            # Space after return token or after Controlled statement
             if first_node:
                 post += " "
 
