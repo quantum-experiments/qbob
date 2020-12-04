@@ -157,6 +157,9 @@ class OperationBuilder:
                 self.temp_dir = temp_dir
 
     def log_state(self, register: Union[Token, List[Token]]):
+        if self.input_parameters:
+            raise IOError("Cannot log state for non-deterministic operation with input parameters.")
+
         if self.debug is True:
             from qbob.diagnostics import DumpRegister
             guid = str(uuid.uuid4())
