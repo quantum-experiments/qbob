@@ -46,13 +46,13 @@ Hello World!
 
 ### Debugging
 
-We can also use the debugging feature to print the intermediate qubit state as a comment into the generated Q# code using the `debug=True` attribute.
+We can also use the debugging feature to print the intermediate qubit state as a comment into the generated Q# code using `debug=True`.
 
 ```python
 debug_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
 with debug_qbob.allocate_qubits("q", 1) as q:
     debug_qbob += H(q)
-    debug_qbob.state_log(q)
+    debug_qbob.log_state(q)
     debug_qbob.returns(M(q))
 
 print(debug_qbob.build())
