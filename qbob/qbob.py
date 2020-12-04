@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from typing import List, Union, _GenericAlias
 
 from qbob.token import Token
-from qbob.types import to_qsharp_type
+from qbob.types import to_qsharp_type, to_qsharp_value, to_qsharp_escaped_string
 from qbob.formatter import QSharpFormatter
 
 
@@ -116,7 +116,7 @@ class OperationBuilder:
         """
         code = self.formatted(with_state_log=True)
         with tempfile.TemporaryDirectory() as temp_dir:
-            code_to_compile = code.replace(TEMP_DIR_KEYWORD, temp_dir)
+            code_to_compile = code.replace(TEMP_DIR_KEYWORD, to_qsharp_escaped_string(temp_dir))
 
             # Compile the program with DumpRegister operations and save to files in temp dir
             import qsharp
@@ -126,7 +126,7 @@ class OperationBuilder:
             # Read files and replace DumpRegister lines with file contents
             new_code = code
             for guid, token in self._state_log.items():
-                with open(os.path.join(temp_dir, guid)) as f:
+                with open(os.path.join(temp_dir, guid), encoding="utf8") as f:
                     state_log = f.read()
 
                 # ugly hack...
@@ -182,7 +182,7 @@ class OperationBuilder:
         return Token(parameter_name, to_qsharp_type(parameter_type))
 
     def add_local(self, name: str, value: object, immutable: bool = False) -> Token:
-        self.statements.append(f"{'let' if immutable else 'mutable'} {name} = {value};")
+        self.statements.append(f"{'let' if immutable else 'mutable'} {name} = {to_qsharp_value(value)};")
         return Token(name, to_qsharp_type(type(value)))
 
     def set_local(self, local: Token, value: object) -> None:

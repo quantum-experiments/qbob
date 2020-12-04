@@ -1,5 +1,7 @@
 """Define a representation of a typed token in Q# code."""
 
+from qbob.types import to_qsharp_value
+
 class Token:
     def __init__(self, name: str, type: str):
         self.name = name
@@ -10,7 +12,7 @@ class Token:
         return Token(f"{self}[{key}]", self.type[:-2])
 
     def __eq__(self, value: object) -> 'Token':
-        return Token(f"{self} == {value}", "Bool")
+        return Token(f"{self} == {to_qsharp_value(value)}", "Bool")
 
     def __str__(self) -> str:
         return self.name

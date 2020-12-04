@@ -21,6 +21,14 @@ def to_qsharp_type(python_type: type) -> str:
     
     return None
 
+def to_qsharp_value(python_value: object) -> str:
+    if isinstance(python_value, bool):
+        return "true" if python_value else "false"
+    return str(python_value)
+
+def to_qsharp_escaped_string(python_string: object) -> str:
+    return str(python_string).encode('unicode_escape').decode()
+
 class Qubit:
     pass
 

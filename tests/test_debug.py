@@ -23,13 +23,13 @@ def test_debug(tmp_path):
     test = my_qbob.compile()
     test()
 
-    with open(file_location(1)) as f:
+    with open(file_location(1), encoding="utf8") as f:
         print(f.read())
 
-    with open(file_location(2)) as f:
+    with open(file_location(2), encoding="utf8") as f:
         print(f.read())
 
-    with open(file_location(3)) as f:
+    with open(file_location(3), encoding="utf8") as f:
         print(f.read())
 
 
@@ -54,13 +54,13 @@ def test_debug_register(tmp_path):
     test = my_qbob.compile()
     test()
 
-    with open(file_location(1)) as f:
+    with open(file_location(1), encoding="utf8") as f:
         print(f.read())
 
-    with open(file_location(2)) as f:
+    with open(file_location(2), encoding="utf8") as f:
         print(f.read())
 
-    with open(file_location(3)) as f:
+    with open(file_location(3), encoding="utf8") as f:
         print(f.read())
 
 
