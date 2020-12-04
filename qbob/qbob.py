@@ -1,37 +1,77 @@
-"""Main module."""
+"""Define the OperationBuilder class."""
 
 from contextlib import contextmanager
 from typing import List, Union, _GenericAlias
 
 from qbob.token import Token
 from qbob.types import to_qsharp_type
+from qbob.formatter import QSharpFormatter
+
+
+NEWLINE = "\n"
 
 
 class OperationBuilder:
+
+    _OPERATION_TEMPLATE = \
+        """{attributes} operation {name} ( {arguments} ) : {return_type} {characteristics}
+        {{
+            {statements}
+        }}"""
 
     def __init__(self, operation_name: str):
         self.operation_name = operation_name
         self.input_parameters = {}
         self.is_adj = False
         self.is_ctl = False
+        self.is_entrypoint = False
 
         self.statements = []
         self.return_type = "Unit"
 
-    def to_str(self) -> str:
-        return (
-            f"operation {self.operation_name}("
-            + ",".join([f"{n} : {to_qsharp_type(t)}"
-                        for n,t in self.input_parameters.items()])
-            + f") : {self.return_type} "
-            + ("is Adj+Ctl" if self.is_adj and self.is_ctl
+    @property
+    def attributes(self) -> str:
+        return "@EntryPoint()" if self.is_entrypoint else ""
+
+    @property
+    def arguments(self) -> str:
+        return ",".join(
+            [
+                f"{n} : {to_qsharp_type(t)}" for n, t in self.input_parameters.items()
+            ]
+        )
+
+    @property
+    def characteristics(self) -> str:
+        chars = ("is Adj + Ctl" if self.is_adj and self.is_ctl
                 else "is Adj" if self.is_adj
                 else "is Ctl" if self.is_ctl
                 else "")
-            + " {"
-            + "\n".join(self.statements)
-            + "}"
+        return chars
+
+    @property
+    def op_statements(self) -> str:
+        return NEWLINE.join(self.statements)
+
+    def to_str(self) -> str:
+        return self._OPERATION_TEMPLATE.format(
+            name=self.operation_name,
+            attributes=self.attributes,
+            arguments=self.arguments,
+            return_type=self.return_type,
+            characteristics=self.characteristics,
+            statements=self.op_statements
         )
+
+    def build(self) -> str:
+        """Generate formatted Q# code from the builder
+
+        :return: Formatted Q# code
+        :rtype: str
+        """
+        formatter = QSharpFormatter()
+        unformatted_code = self.to_str()
+        return formatter.format_input(unformatted_code)
 
     def __call__(self, *args) -> Token:
         assert len(args) == len(self.input_parameters)
@@ -70,9 +110,10 @@ class OperationBuilder:
         self.return_type = ','.join([to_qsharp_return_type(r) for r in return_tokens])
         
     @contextmanager
-    def allocate_qubits(self, register_name: str, num_qubits: int):
-        assert num_qubits > 0
-        if num_qubits == 1:
+    def allocate_qubits(self, register_name: str, num_qubits: Union[int, Token]):
+        assert isinstance(num_qubits, Token) or num_qubits > 0
+
+        if isinstance(num_qubits, int) and num_qubits == 1:
             self.statements.append(f"using ({register_name} = Qubit())")
             type_name = "Qubit"
         else:
@@ -120,7 +161,7 @@ class OperationBuilder:
     @contextmanager
     def if_statement(self, condition: Token):
         assert condition.type == "Bool"
-        self.statements.append(f"if {condition.name} {{")
+        self.statements.append(f"if ({condition}) {{")
         try:
             yield
         finally:
