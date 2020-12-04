@@ -55,27 +55,30 @@ class OperationBuilder:
                 else "")
         return chars
 
-    @property
-    def op_statements(self) -> str:
+    def op_statements(self, with_state_log: bool = False) -> str:
+        if not with_state_log:
+            # Only return statements that don't include state logging
+            statements = [st for st in self.statements if st not in [f"{s};" for s in self._state_log.values()]]
+            return NEWLINE.join(statements)
         return NEWLINE.join(self.statements)
 
-    def to_str(self) -> str:
+    def to_str(self, with_state_log: bool = False) -> str:
         return self._OPERATION_TEMPLATE.format(
             name=self.operation_name,
             attributes=self.attributes,
             arguments=self.arguments,
             return_type=self.return_type,
             characteristics=self.characteristics,
-            statements=self.op_statements
+            statements=self.op_statements(with_state_log=with_state_log)
         )
 
-    def formatted(self):
+    def formatted(self, with_state_log: bool = False):
         formatter = QSharpFormatter()
-        unformatted_code = self.to_str()
+        unformatted_code = self.to_str(with_state_log=with_state_log)
         return formatter.format_input(unformatted_code)
 
-    def build_debug(self) -> str:
-        """Build the Q# code and insert the output of DumpRegister 
+    def formatted_debug(self) -> str:
+        """Format the Q# code and insert the output of DumpRegister 
         (which was added using qbob.state_log) into the code
 
         # Debug steps:
@@ -108,10 +111,10 @@ class OperationBuilder:
         #     }
         # }
 
-        :return: Formatted code with 
+        :return: Formatted code including text representation of qubit state
         :rtype: str
         """
-        code = self.formatted()
+        code = self.formatted(with_state_log=True)
         with tempfile.TemporaryDirectory() as temp_dir:
             code_to_compile = code.replace(TEMP_DIR_KEYWORD, temp_dir)
 
@@ -141,7 +144,7 @@ class OperationBuilder:
         :rtype: str
         """
         if self.debug is True and self._state_log:
-            return self.build_debug()
+            return self.formatted_debug()
         return self.formatted()
 
     def compile(self):
