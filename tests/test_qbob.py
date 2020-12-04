@@ -257,7 +257,7 @@ def test_measure_array(measure_array):
     measure = Measure([Pauli.PauliZ, Pauli.PauliZ], qubits)
     my_qbob.add_local("result", measure, True)
 
-    qsharp_code = my_qbob.to_str()
+    qsharp_code = my_qbob.formatted()
     print(qsharp_code)
     assert measure_array == qsharp_code
 
@@ -268,6 +268,6 @@ def test_measure_array_items(measure_array_items):
     measure = Measure([Pauli.PauliZ, Pauli.PauliZ], [qubits[0], qubits[1]])
     my_qbob.add_local("result", measure, True)
 
-    qsharp_code = my_qbob.to_str()
+    qsharp_code = my_qbob.formatted()
     print(qsharp_code)
     assert measure_array_items == qsharp_code
