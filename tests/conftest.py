@@ -209,13 +209,14 @@ def two_gates():
 
 @pytest.fixture()
 def measure_array():
-    return """operation MeasureArray(qubits : Qubit[]) : Unit {
+    return """operation MeasureArray (qubits : Qubit[]) : Unit {
         let result = Measure([PauliZ, PauliZ], qubits);
 }"""
 
 
+@pytest.fixture()
 def measure_array_items():
-    return """operation MeasureArrayItems(qubits : Qubit[]) : Unit {
+    return """operation MeasureArrayItems (qubits : Qubit[]) : Unit {
         let result = Measure([PauliZ, PauliZ], [qubits[0], qubits[1]]);
 }"""
 

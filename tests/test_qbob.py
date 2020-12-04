@@ -259,7 +259,7 @@ def test_measure_array(measure_array):
 
     qsharp_code = my_qbob.to_str()
     print(qsharp_code)
-    assert no_whitespace_equals(measure_array, qsharp_code)
+    assert measure_array == qsharp_code
 
 
 def test_measure_array_items(measure_array_items):
@@ -270,4 +270,4 @@ def test_measure_array_items(measure_array_items):
 
     qsharp_code = my_qbob.to_str()
     print(qsharp_code)
-    assert no_whitespace_equals(measure_array_items, qsharp_code)
+    assert measure_array_items == qsharp_code
