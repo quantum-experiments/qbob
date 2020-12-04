@@ -5,7 +5,6 @@ from textwrap import dedent, indent
 from typing import List, Union
 
 from qbob.qbob import OperationBuilder
-from qbob.formatter import QSharpFormatter
 
 
 class ProgramArchitect:
@@ -69,13 +68,10 @@ class ProgramArchitect:
         if isinstance(folder_path, str):
             folder_path = Path(folder_path)
 
-        unformatted_code = self._QS_FILE_TEMPLATE.format(
+        qs_file_contents = self._QS_FILE_TEMPLATE.format(
             namespace=self.project_name,
             operations="".join([op.build() for op in self.operations])
         )
-
-        formatter = QSharpFormatter()
-        qs_file_contents = formatter.format_input(unformatted_code)
 
         qs_file_path = folder_path / filename
         qs_file_path.write_text(qs_file_contents)
