@@ -206,7 +206,9 @@ class OperationBuilder:
 
     @contextmanager
     def allocate_qubit(self, register_name: str):
-        yield self.allocate_qubits(register_name=register_name, num_qubits=1)
+        """Allocate a single qubit"""
+        with self.allocate_qubits(register_name=register_name, num_qubits=1) as qubit:
+            yield qubit
     
     
     @contextmanager
