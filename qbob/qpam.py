@@ -18,10 +18,10 @@ class ProgramArchitect:
             {operations}
         }}"""
 
-    def __init__(self, project_name: str):
+    def __init__(self, project_name: str, executable: bool = True):
         self.project_name = project_name
         self.operations = []
-        self.is_executable = False
+        self.is_executable = executable
 
     @property
     def default_csproj_filename(self) -> str:

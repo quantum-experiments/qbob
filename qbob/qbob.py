@@ -19,12 +19,12 @@ class OperationBuilder:
             {statements}
         }}"""
 
-    def __init__(self, operation_name: str):
+    def __init__(self, operation_name: str, entrypoint: bool=False, adj: bool = False, ctl: bool = False):
         self.operation_name = operation_name
         self.input_parameters = {}
-        self.is_adj = False
-        self.is_ctl = False
-        self.is_entrypoint = False
+        self.is_adj = adj
+        self.is_ctl = ctl
+        self.is_entrypoint = entrypoint
 
         self.statements = []
         self.return_type = "Unit"
@@ -72,6 +72,10 @@ class OperationBuilder:
         formatter = QSharpFormatter()
         unformatted_code = self.to_str()
         return formatter.format_input(unformatted_code)
+
+    def compile(self):
+        import qsharp
+        return qsharp.compile(self.build())
 
     def __call__(self, *args) -> Token:
         assert len(args) == len(self.input_parameters)
