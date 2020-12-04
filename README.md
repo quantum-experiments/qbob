@@ -10,7 +10,7 @@ from qbob.intrinsics import Message, H, M
 
 my_qbob = qbob.OperationBuilder("HelloWorld", entrypoint=True)
 my_qbob += Message("Hello World!")
-with my_qbob.allocate_qubits("q", 1) as q:
+with my_qbob.allocate_qubit("q") as q:
     my_qbob += H(q)
     my_qbob.returns(M(q))
 
@@ -50,7 +50,7 @@ We can also use the debugging feature to print the intermediate qubit state as a
 
 ```python
 debug_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
-with debug_qbob.allocate_qubits("q", 1) as q:
+with debug_qbob.allocate_qubit("q") as q:
     debug_qbob += H(q)
     debug_qbob.log_state(q)
     debug_qbob.returns(M(q))
