@@ -249,3 +249,25 @@ def test_empty_entrypoint(with_entrypoint):
     qsharp_code = my_qbob.build()
     print(qsharp_code)
     assert with_entrypoint == qsharp_code
+
+
+def test_measure_array(measure_array):
+    my_qbob = qbob.OperationBuilder("MeasureArray")
+    qubits = my_qbob.input("qubits", List[Qubit])
+    measure = Measure([Pauli.PauliZ, Pauli.PauliZ], qubits)
+    my_qbob.add_local("result", measure, True)
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert no_whitespace_equals(measure_array, qsharp_code)
+
+
+def test_measure_array_items(measure_array_items):
+    my_qbob = qbob.OperationBuilder("MeasureArrayItems")
+    qubits = my_qbob.input("qubits", List[Qubit])
+    measure = Measure([Pauli.PauliZ, Pauli.PauliZ], [qubits[0], qubits[1]])
+    my_qbob.add_local("result", measure, True)
+
+    qsharp_code = my_qbob.to_str()
+    print(qsharp_code)
+    assert no_whitespace_equals(measure_array_items, qsharp_code)

@@ -208,6 +208,19 @@ def two_gates():
 
 
 @pytest.fixture()
+def measure_array():
+    return """operation MeasureArray(qubits : Qubit[]) : Unit {
+        let result = Measure([PauliZ, PauliZ], qubits);
+}"""
+
+
+def measure_array_items():
+    return """operation MeasureArrayItems(qubits : Qubit[]) : Unit {
+        let result = Measure([PauliZ, PauliZ], [qubits[0], qubits[1]]);
+}"""
+
+
+@pytest.fixture()
 def namespace_with_import():
     return """namespace Foo {
     open Bar;
@@ -217,7 +230,6 @@ def namespace_with_import():
 }"""
 
 
-@pytest.fixture()
 def namespace_with_import_and_entrypoint():
     return """namespace Foo {
     open Test;
