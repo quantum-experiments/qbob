@@ -49,7 +49,7 @@ Hello World!
 We can also use the debugging feature to print the intermediate qubit state as a comment into the generated Q# code using `debug=True`.
 
 ```python
-my_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
+my_qbob = qbob.OperationBuilder("HelloWorld", entrypoint=True, debug=True)
 with my_qbob.allocate_qubit("q") as q:
     my_qbob += H(q)
     my_qbob.log_state(q)
