@@ -5,6 +5,7 @@ antlr4-python3-runtime==4.9
 bump2version==0.5.11
 coverage==4.5.4
 flake8==3.7.8
+qiskit==0.23.1
 sphinx==1.8.5
 tox==3.14.0
 twine==1.14.0
