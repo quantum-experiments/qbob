@@ -35,7 +35,7 @@ class Formatter(abc.ABC):
         stream = CommonTokenStream(lexer)
         parser = self.parser_cls(stream)
         tree = getattr(parser, self.parser_entry_fn)()
-        listener = self.listener_cls()
+        listener = self.listener_cls(tokens=stream.tokens)
         walker = ParseTreeWalker()
         walker.walk(listener, tree)
         return listener.value

@@ -1,7 +1,10 @@
 import sys
 
+from typing import List
+from antlr4.Token import Token
 from antlr4 import ParseTreeListener, FileStream, CommonTokenStream, ParseTreeWalker
 from antlr4.tree import Tree
+
 from qbob.formatter.QSharpLexer import QSharpLexer
 from qbob.formatter.QSharpParser import QSharpParser, ParserRuleContext
 
@@ -12,10 +15,13 @@ NEWLINE = "\n"
 class QSharpListener(ParseTreeListener):
     """Listener for QSharp Parse tree that formats Q# code
     """
-    def __init__(self, debug: bool = False, *args, **kwargs):
-        self.indentation = 0
+    def __init__(self, tokens: List[Token], debug: bool = False, *args, **kwargs):
+        self._all_tokens = tokens
+        self._comment_tokens = [ t for t in tokens if t.type == QSharpParser.Comment ]
+        self._current_token_index = 0 # Keep track of processed tokens
         self._value = ""
-        self.n = 0
+        self.n = 0 # For debugging: keep track of rule entered
+        self.indentation = 0 # Keep track of indentation
         self.in_namespace = False
         self.namespace_indentation_added = False # Keep track of indentation in namespaces
         self.in_declaration_prefix = False
@@ -45,6 +51,15 @@ class QSharpListener(ParseTreeListener):
         node_index = tree_nodes.index(node)
         first_node = node_index == 0
         last_node = node_index == len(tree_nodes) - 1
+
+        # Get comments that should be inserted before this token
+        comment_lines = [
+            t.text for t in self._comment_tokens 
+            if (t.tokenIndex > self._current_token_index and t.tokenIndex < node.symbol.tokenIndex)
+        ]
+        comments = f"{NEWLINE}{TAB * self.indentation}".join(comment_lines)
+        if comments:
+            comments = TAB * self.indentation + comments + NEWLINE
 
         # Nodes with newlines
         if first_node and not last_node:
@@ -212,7 +227,13 @@ class QSharpListener(ParseTreeListener):
         elif self._value.endswith(NEWLINE):
             pre = TAB * self.indentation + pre
 
+        # Add comments if any
+        if comments:
+            self._value += comments
+
         self._value += f"{pre}{node.symbol.text}{post}"
+        # Update current token index
+        self._current_token_index = node.symbol.tokenIndex
 
     def enterEveryRule(self, ctx: ParserRuleContext):
         if isinstance(ctx, QSharpParser.NamespaceContext):

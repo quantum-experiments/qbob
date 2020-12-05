@@ -246,3 +246,18 @@ def controlled_gate():
     return """operation ControlledZ (qs : Qubit[]) : Unit is Adj + Ctl {
     Controlled Z([qs[0]], qs[1]);
 }"""
+
+
+@pytest.fixture()
+def operation_with_comments():
+    return """namespace Foo {
+    open Test;
+
+    @EntryPoint()
+    operation Bar () : Unit {
+        // This is a comment
+        Message("Bar");
+        // Lorem ipsum
+        // Dolor sit amet
+    }
+}"""
