@@ -49,13 +49,13 @@ Hello World!
 We can also use the debugging feature to print the intermediate qubit state as a comment into the generated Q# code using `debug=True`.
 
 ```python
-debug_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
-with debug_qbob.allocate_qubit("q") as q:
-    debug_qbob += H(q)
-    debug_qbob.log_state(q)
-    debug_qbob.returns(M(q))
+my_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
+with my_qbob.allocate_qubit("q") as q:
+    my_qbob += H(q)
+    my_qbob.log_state(q)
+    my_qbob.returns(M(q))
 
-print(debug_qbob.build())
+print(my_qbob.build())
 ```
 
 generates
@@ -92,8 +92,14 @@ namespace MyProject {
     open Microsoft.Quantum.Intrinsic;
 
     @EntryPoint()
-    operation HelloWorld () : Unit {
-        Message("Hello World!");
+    operation HelloWorld () : Result {
+        using (q = Qubit()) {
+            H(q);
+            // # wave function for qubits with ids (least to most significant): 0
+            // ∣0❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+            // ∣1❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+            return M(q);
+        }
     }
 }
 ```
