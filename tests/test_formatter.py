@@ -84,6 +84,7 @@ def test_format_file(test_file, formatted):
         "two_gates",
         "namespace_with_import",
         "namespace_with_import_and_entrypoint",
+<<<<<<< HEAD
         "controlled_x",
         "controlled_y",
         "controlled_z",
@@ -91,12 +92,13 @@ def test_format_file(test_file, formatted):
         "controlled_cnot",
         "multiple_control",
         "controlled_on_bit_string"
+=======
+        "controlled_gate",
+        "operation_with_comments"
+>>>>>>> 2cffb699a3c4cf5f4b2925c6a8867194987168fc
     ]
 )
 def test_format_operations_unit(fixture_name, request):
     data = request.getfixturevalue(fixture_name)
-    formatter = QSharpDebugFormatter()
-    print(formatter.format_input(data))
     formatter = QSharpFormatter()
-    print(formatter.format_input(data))
     assert formatter.format_input(data) == data

@@ -36,6 +36,39 @@ def test_file(tmp_path):
     qsharp.reload()
     assert "TestProject.HelloWorld" in qsharp.get_available_operations()
 
+
+def test_file_with_comments(tmp_path):
+    '''Tests creating .csproj and .qs files individually.'''
+    my_qpam = qpam.ProgramArchitect("TestProject")
+    project_path = my_qpam.save_csproj_file(tmp_path, "HelloWorld.csproj")
+
+    my_qbob = qbob.OperationBuilder("HelloWorld", debug=True)
+    my_qbob += Message("Hello World!")
+    with my_qbob.allocate_qubit("q") as q:
+        my_qbob += H(q)
+        my_qbob.log_state(q)
+    my_qpam.add_operations(my_qbob)
+    file_path = my_qpam.save_qs_file(tmp_path, "HelloWorld.qs")
+
+    with open(file_path) as f:
+        file_contents = f.read()
+
+    assert file_contents == """namespace TestProject {
+    open Microsoft.Quantum.Canon;
+    open Microsoft.Quantum.Intrinsic;
+
+    operation HelloWorld () : Unit {
+        Message("Hello World!");
+        using (q = Qubit()) {
+            H(q);
+            // # wave function for qubits with ids (least to most significant): 0
+            // ∣0❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+            // ∣1❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+        }
+    }
+}"""
+
+
 def test_executable(tmp_path):
     '''Tests creating a Q# executable project with source code.'''
     my_qbob = qbob.OperationBuilder("HelloWorld")

@@ -288,4 +288,17 @@ def controlled_on_bit_string():
     ApplyControlledOnBitString(bits, H, qs, target);
     ApplyControlledOnBitString([true], H, [qs[0]], target);
     ApplyControlledOnBitString([true, false], H, [qs[0], qs[1]], target);
+
+def operation_with_comments():
+    return """namespace Foo {
+    open Test;
+
+    @EntryPoint()
+    operation Bar () : Unit {
+        // This is a comment
+        Message("Bar");
+        // Lorem ipsum
+        // Dolor sit amet
+    }
+
 }"""

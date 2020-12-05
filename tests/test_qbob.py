@@ -90,6 +90,16 @@ def test_two_gates(two_gates):
 
 def test_allocate_qubit(allocate_qubit):
     my_qbob = qbob.OperationBuilder("AllocateQubit")
+    with my_qbob.allocate_qubit("q") as q:
+        my_qbob += Z(q)
+
+    qsharp_code = my_qbob.build()
+    print(qsharp_code)
+    assert allocate_qubit == qsharp_code
+
+
+def test_allocate_qubits(allocate_qubit):
+    my_qbob = qbob.OperationBuilder("AllocateQubit")
     with my_qbob.allocate_qubits("q", 1) as q:
         my_qbob += Z(q)
 
