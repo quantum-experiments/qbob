@@ -288,7 +288,10 @@ def controlled_on_bit_string():
     ApplyControlledOnBitString(bits, H, qs, target);
     ApplyControlledOnBitString([true], H, [qs[0]], target);
     ApplyControlledOnBitString([true, false], H, [qs[0], qs[1]], target);
+}"""
 
+
+@pytest.fixture()
 def operation_with_comments():
     return """namespace Foo {
     open Test;
@@ -300,5 +303,4 @@ def operation_with_comments():
         // Lorem ipsum
         // Dolor sit amet
     }
-
 }"""

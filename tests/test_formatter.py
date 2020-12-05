@@ -84,18 +84,14 @@ def test_format_file(test_file, formatted):
         "two_gates",
         "namespace_with_import",
         "namespace_with_import_and_entrypoint",
-<<<<<<< HEAD
         "controlled_x",
         "controlled_y",
         "controlled_z",
         "controlled_swap",
         "controlled_cnot",
         "multiple_control",
-        "controlled_on_bit_string"
-=======
-        "controlled_gate",
-        "operation_with_comments"
->>>>>>> 2cffb699a3c4cf5f4b2925c6a8867194987168fc
+        "controlled_on_bit_string",
+        "operation_with_comments",
     ]
 )
 def test_format_operations_unit(fixture_name, request):
