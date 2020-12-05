@@ -61,7 +61,7 @@ class ProgramArchitect:
                     {self.msbuild_properties}
                 </PropertyGroup>
             </Project>
-        """).strip())
+        """).strip(), encoding="utf8")
 
         return str(project_path)
 
@@ -78,7 +78,7 @@ class ProgramArchitect:
         qs_file_contents = formatter.format_input(unformatted_code)
 
         qs_file_path = folder_path / filename
-        qs_file_path.write_text(qs_file_contents)
+        qs_file_path.write_text(qs_file_contents, encoding="utf8")
 
         return str(qs_file_path)
 

@@ -47,10 +47,11 @@ def test_file_with_comments(tmp_path):
     with my_qbob.allocate_qubit("q") as q:
         my_qbob += H(q)
         my_qbob.log_state(q)
+        my_qbob += Reset(q)
     my_qpam.add_operations(my_qbob)
     file_path = my_qpam.save_qs_file(tmp_path, "HelloWorld.qs")
 
-    with open(file_path) as f:
+    with open(file_path, encoding="utf8") as f:
         file_contents = f.read()
 
     assert file_contents == """namespace TestProject {
@@ -64,6 +65,7 @@ def test_file_with_comments(tmp_path):
             // # wave function for qubits with ids (least to most significant): 0
             // ∣0❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
             // ∣1❭:	 0.707107 +  0.000000 i	 == 	***********          [ 0.500000 ]     --- [  0.00000 rad ]
+            Reset(q);
         }
     }
 }"""
@@ -84,6 +86,7 @@ def test_executable(tmp_path):
     qsharp.projects.add(str(project_path))
     qsharp.reload()
     assert "HelloWorldExecutable.HelloWorld" in qsharp.get_available_operations()
+
 
 def test_hello_world(tmp_path):
     '''Tests creating a Q# library project with source code.'''
