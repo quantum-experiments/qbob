@@ -150,3 +150,68 @@ def test_measure_array_items(measure_array_items):
     }
 }""")
     entrypoint.simulate()
+
+def test_controlled_z(controlled_z):
+    qsharp.compile(controlled_z)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[2]) {
+            ControlledZ(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+def test_controlled_x(controlled_x):
+    qsharp.compile(controlled_x)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[2]) {
+            ControlledX(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+def test_controlled_z(controlled_y):
+    qsharp.compile(controlled_y)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[2]) {
+            ControlledY(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+def test_controlled_cnot(controlled_cnot):
+    qsharp.compile(controlled_cnot)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[3]) {
+            ControlledCNOT(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+def test_controlled_swap(controlled_swap):
+    qsharp.compile(controlled_swap)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[3]) {
+            ControlledSwap(qubits[0], [qubits[1], qubits[2]]);
+    }
+}""")
+    entrypoint.simulate()
+
+
+
+def test_multiple_control(multiple_control):
+    qsharp.compile(multiple_control)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qubits = Qubit[3]) {
+            MultipleControl(qubits);
+    }
+}""")
+    entrypoint.simulate()
+
+def test_controlled_on_bit_string(controlled_on_bit_string):
+    qsharp.compile(controlled_on_bit_string)
+    entrypoint = qsharp.compile("""operation Program () : Unit {
+        using(qs = Qubit[3]) {
+            TestControlledOnBitString([false, true], [qs[0], qs[1]], qs[3]);
+    }
+}""")
+    entrypoint.simulate()

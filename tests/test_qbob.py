@@ -271,3 +271,80 @@ def test_measure_array_items(measure_array_items):
     qsharp_code = my_qbob.formatted()
     print(qsharp_code)
     assert measure_array_items == qsharp_code
+
+
+def test_controlled_z(controlled_z):
+    my_qbob = qbob.OperationBuilder("ControlledZ")
+    my_qbob.is_adj = True
+    my_qbob.is_ctl = True
+    qs = my_qbob.input("qs", List[Qubit])
+    my_qbob += Z(qs[1]).controlled_on(qs[0])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_z == qsharp_code
+
+
+def test_controlled_x(controlled_x):
+    my_qbob = qbob.OperationBuilder("ControlledX")
+    qs = my_qbob.input("qs", List[Qubit])
+    my_qbob += X(qs[1]).controlled_on(qs[0])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_x == qsharp_code
+
+
+def test_controlled_y(controlled_y):
+    my_qbob = qbob.OperationBuilder("ControlledY")
+    qs = my_qbob.input("qs", List[Qubit])
+    my_qbob += Y(qs[1]).controlled_on(qs[0])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_y == qsharp_code
+
+
+def test_controlled_cnot(controlled_cnot):
+    my_qbob = qbob.OperationBuilder("ControlledCNOT")
+    qs = my_qbob.input("qs", List[Qubit])
+    my_qbob += CNOT(qs[1], qs[2]).controlled_on(qs[0])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_cnot == qsharp_code
+
+
+def test_controlled_swap(controlled_swap):
+    my_qbob = qbob.OperationBuilder("ControlledSwap")
+    control = my_qbob.input("control", Qubit)
+    targets = my_qbob.input("targets", List[Qubit])
+    my_qbob += SWAP(targets[0], targets[1]).controlled_on(control)
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_swap == qsharp_code
+
+
+def test_controlled_multiple(multiple_control):
+    my_qbob = qbob.OperationBuilder("MultipleControl")
+    qs = my_qbob.input("qs", List[Qubit])
+    my_qbob += Y(qs[2]).controlled_on([qs[0], qs[1]])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert multiple_control == qsharp_code
+
+
+def test_controlled_on_bit_string(controlled_on_bit_string):
+    my_qbob = qbob.OperationBuilder("TestControlledOnBitString")
+    bits = my_qbob.input("bits", List[Bool])
+    qs = my_qbob.input("qs", List[Qubit])
+    target = my_qbob.input("target", Qubit)
+    my_qbob += H(target).controlled_on_bit_string(bits, qs)
+    my_qbob += H(target).controlled_on_bit_string(True, qs[0])
+    my_qbob += H(target).controlled_on_bit_string([True, False], [qs[0], qs[1]])
+
+    qsharp_code = my_qbob.formatted()
+    print(qsharp_code)
+    assert controlled_on_bit_string == qsharp_code

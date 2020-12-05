@@ -242,7 +242,50 @@ def namespace_with_import_and_entrypoint():
 
 
 @pytest.fixture()
-def controlled_gate():
+def controlled_x():
+    return """operation ControlledX (qs : Qubit[]) : Unit {
+    Controlled X([qs[0]], qs[1]);
+}"""
+
+
+@pytest.fixture()
+def controlled_y():
+    return """operation ControlledY (qs : Qubit[]) : Unit {
+    Controlled Y([qs[0]], qs[1]);
+}"""
+
+
+@pytest.fixture()
+def controlled_z():
     return """operation ControlledZ (qs : Qubit[]) : Unit is Adj + Ctl {
     Controlled Z([qs[0]], qs[1]);
+}"""
+
+
+@pytest.fixture()
+def controlled_swap():
+    return """operation ControlledSwap (control : Qubit, targets : Qubit[]) : Unit {
+    Controlled SWAP([control], (targets[0],targets[1]));
+}"""
+
+@pytest.fixture()
+def controlled_cnot():
+    return """operation ControlledCNOT (qs : Qubit[]) : Unit {
+    CCNOT(qs[0], qs[1], qs[2]);
+}"""
+
+
+@pytest.fixture()
+def multiple_control():
+    return """operation MultipleControl (qs : Qubit[]) : Unit {
+    Controlled Y([qs[0], qs[1]], qs[2]);
+}"""
+
+
+@pytest.fixture()
+def controlled_on_bit_string():
+    return """operation TestControlledOnBitString (bits : Bool[], qs : Qubit[], target : Qubit) : Unit {
+    ApplyControlledOnBitString(bits, H, qs, target);
+    ApplyControlledOnBitString([true], H, [qs[0]], target);
+    ApplyControlledOnBitString([true, false], H, [qs[0], qs[1]], target);
 }"""

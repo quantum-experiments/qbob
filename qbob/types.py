@@ -18,6 +18,10 @@ def to_qsharp_type(python_type: type) -> str:
         return "Int"
     elif python_type == str:
         return "String"
+    elif python_type == Bool:
+        return "Bool"
+    elif python_type == List[Bool]:
+        return "Bool[]"
     
     return None
 
@@ -30,6 +34,9 @@ def to_qsharp_escaped_string(python_string: object) -> str:
     return str(python_string).encode('unicode_escape').decode()
 
 class Qubit:
+    pass
+
+class Bool:
     pass
 
 class Result:

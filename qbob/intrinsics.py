@@ -3,7 +3,7 @@
 from qbob.qbob import Token
 
 def H(qubit: Token) -> Token:
-    return Token(f"H({qubit})", "Unit")
+    return Token(f"H({qubit})", "Unit").set_ctl(True).set_adj(True)
 
 def M(qubit: Token) -> Token:
     return Token(f"M({qubit})", "Result")
@@ -22,16 +22,19 @@ def Reset(qubit: Token) -> Token:
     return Token(f"Reset({qubit})", "Unit")
     
 def X(qubit: Token) -> Token:
-    return Token(f"X({qubit})", "Unit")
-    
+    return Token(f"X({qubit})", "Unit").set_ctl(True).set_adj(True)
+
 def Y(qubit: Token) -> Token:
-    return Token(f"Y({qubit})", "Unit")
+    return Token(f"Y({qubit})", "Unit").set_ctl(True).set_adj(True)
     
 def Z(qubit: Token) -> Token:
-    return Token(f"Z({qubit})", "Unit")
+    return Token(f"Z({qubit})", "Unit").set_ctl(True).set_adj(True)
 
 def CNOT(source_qubit: Token, target_qubit: Token) -> Token:
-    return Token(f"CNOT({source_qubit}, {target_qubit})", "Unit")
+    return Token(f"CNOT({source_qubit}, {target_qubit})", "Unit").set_ctl(True).set_adj(True)
+
+def SWAP(qubit1: Token, qubit2: Token) -> Token:
+    return Token(f"SWAP({qubit1}, {qubit2})", "Unit").set_ctl(True).set_adj(True)
 
 def Message(s: str) -> Token:
     return Token(f"Message(\"{s}\")", "Unit")
