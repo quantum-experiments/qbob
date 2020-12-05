@@ -75,7 +75,7 @@ operation HelloWorld () : Result {
 
 ## QPAM |👷🏻‍♀️> example usage
 
-QPAM generates a .qs file .csproj project file from one or more QBOBs.
+QPAM, the Q# Project Architect Manager, uses one or more QBOBs to generate a .qs file and .csproj project file that can be compiled and run from the terminal. It also adds a namespace scope and opens any namespace dependencies.
 
 ```python
 my_qpam = qpam.ProgramArchitect("MyProject")
