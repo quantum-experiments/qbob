@@ -24,7 +24,7 @@ class Token:
         return f"Token({repr(self.name)}, {repr(self.type)})"
 
     def set_adj(self, b: bool) -> 'Token':
-        self.isAdj = b
+        self.is_adj = b
         return self
 
     def set_ctl(self, b: bool) -> 'Token':
